@@ -1,43 +1,85 @@
 @props([
-    'edit' => null,
-    'delete' => null,
+    'row' => null, // model instance
+    'edit' => null, // wire:click action
+    'delete' => null, // wire:click action
+    'mode' => 'buttons', // buttons | dropdown
+    'items' => [], // custom dropdown items
+    'abilities' => [
+        // Gate mapping
+        'update' => 'update',
+        'delete' => 'delete',
+    ],
+    'allow' => [], // role khusus yg boleh
+    'block' => [], // role yg diblokir
 ])
 
-<td class="p-4">
-    <div class="flex items-center gap-2">
+@php
+    $canUpdate = Gate::allows($abilities['update'], [$row, empty($block) ? $allow : $block ]);
+    $canDelete = Gate::allows($abilities['delete'], [$row, empty($block) ? $allow : $block ]);
+    $anyAllowed = $canUpdate || $canDelete;
+@endphp
 
-        {{-- EDIT --}}
-        @if ($edit)
-            <button wire:click="{{ $edit }}" type="button"
-                class="inline-flex aspect-square items-center justify-center rounded
-                       bg-black p-2 text-xs text-white transition hover:opacity-75
-                       dark:bg-white dark:text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07
-                           a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685
-                           a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-                </svg>
-            </button>
+@if ($anyAllowed)
+    <td class="p-3 whitespace-nowrap">
+
+        {{-- ========================= BUTTON MODE ========================= --}}
+        @if ($mode === 'buttons')
+            <div class="flex items-center gap-2">
+                @if ($edit && $canUpdate)
+                    <flux:button variant="primary" icon="pencil" wire:click="{{ $edit }}" size="sm" />
+                @endif
+
+                @if ($delete && $canDelete)
+                    <flux:button variant="danger" icon="trash" wire:click="{{ $delete }}" size="sm" />
+                @endif
+                {{ $slot }}
+            </div>
         @endif
 
-        {{-- DELETE --}}
-        @if ($delete)
-            <button wire:click="{{ $delete }}" type="button"
-                class="inline-flex aspect-square items-center justify-center rounded
-                       bg-red-500 p-2 text-xs text-white transition hover:opacity-75">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
-                           c.342.052.682.107 1.022.166M5.772 5.79
-                           l1.068 13.883a2.25 2.25 0 0 0 2.244 2.077h7.832
-                           a2.25 2.25 0 0 0 2.244-2.077L18.228 5.79" />
-                </svg>
-            </button>
+
+        {{-- ========================= DROPDOWN MODE ========================= --}}
+        @if ($mode === 'dropdown')
+            <flux:dropdown>
+                <flux:button icon:trailing="chevron-down">
+                    Action
+                </flux:button>
+
+                <flux:menu>
+                    {{-- core actions --}}
+                    @if ($edit && $canUpdate)
+                        <flux:menu.item icon="pencil" wire:click="{{ $edit }}">
+                            Edit
+                        </flux:menu.item>
+                    @endif
+
+                    {{-- dynamic items --}}
+                    @foreach ($items as $item)
+                        @php
+                            $show = $item['show'] ?? true;
+                            $visible = is_callable($show) ? $show($row) : $show;
+                        @endphp
+
+                        @if ($visible)
+                            @if (!empty($item['href']))
+                                <flux:menu.item icon="{{ $item['icon'] }}" :href="$item['href']" wire:navigate>
+                                    {{ $item['label'] }}
+                                </flux:menu.item>
+                            @else
+                                <flux:menu.item icon="{{ $item['icon'] }}" wire:click="{{ $item['action'] }}">
+                                    {{ $item['label'] }}
+                                </flux:menu.item>
+                            @endif
+                        @endif
+                    @endforeach
+
+                    {{-- delete --}}
+                    @if ($delete && $canDelete)
+                        <flux:menu.item variant="danger" icon="trash" wire:click="{{ $delete }}">
+                            Delete
+                        </flux:menu.item>
+                    @endif
+                </flux:menu>
+            </flux:dropdown>
         @endif
-
-        {{-- CUSTOM --}}
-        {{ $slot }}
-
-    </div>
-</td>
+    </td>
+@endif

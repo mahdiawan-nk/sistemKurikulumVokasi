@@ -17,9 +17,9 @@
             <flux:legend>User Role</flux:legend>
             <flux:description>Pilih Role Pengguna</flux:description>
 
-            <div class="flex gap-4 *:gap-x-2">
+            <div class="flex flex-wrap gap-4 *:gap-x-2">
                 @foreach ($listRoles as $item)
-                    <flux:checkbox wire:model="role.{{ $item->id }}" value="1" label="{{ $item->name }}"
+                    <flux:checkbox wire:model="role" value="{{ $item->id }}" label="{{ $item->name }}"
                         wire:key="role-{{ $item->id }}" />
                 @endforeach
             </div>

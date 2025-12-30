@@ -2,106 +2,98 @@
 
 namespace App\Livewire\Master\Cpl;
 
-use Livewire\Component;
 use App\Livewire\Base\BaseTable;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\CapaianPembelajaranLulusan as CPL;
 use App\Models\ProgramStudi;
 use Faker\Factory as Faker;
-#[Title('Profile Lulusan')]
 #[Layout('components.layouts.sidebar')]
 class Index extends BaseTable
 {
+    public string $title = 'Capaian Pembelajaran Lulusan';
     public array $filter = [
         'prodi' => null
     ];
-    protected function query(): Builder
-    {
-        return CPL::query()
-            ->with('programStudis')
-            ->when($this->filterValue('prodi'), function ($query, $prodi) {
-                $query->whereHas(
-                    'programStudis',
-                    fn($q) =>
-                    $q->where('program_studis.id', $prodi)
-                );
-            })
-            ->when(
-                $this->search,
-                fn($query, $search) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                })
-            );
-    }
-    public function openDelete($id)
-    {
-        $this->selectedId = $id;
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Data Akan Dihapus?',
-            'acceptLabel' => 'Yes, Delete it!',
-            'method' => 'confirmDelete',
-        ]);
-    }
 
-    public function confirmDelete(): void
-    {
-        CPL::findOrFail($this->selectedId)->delete();
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Berhasil Dihapus',
-            'timeout' => 2500
-        ]);
-        $this->reset();
-    }
+    protected static string $model = CPL::class;
+    protected static string $view = 'livewire.master.cpl.index';
 
-    public function openSample(): void
-    {
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Akan Generate Data '.$this->title.'? 5 data Per Program Studi',
-            'acceptLabel' => 'Yes, Generate it!',
-            'method' => 'confirmGenerate',
-        ]);
-    }
+    public array $relations = ['programStudis'];
+    protected array $filterable = [
+        'prodi' => ['type' => 'relation', 'relation' => 'programStudis', 'column' => 'program_studis.id'],
+    ];
+    protected array $searchable = [
+        'description',
+        'code'
+    ];
+    public $form = [
+        'prodi' => [],
+        'jumlah' => 1
+    ];
 
-    public function confirmGenerate(): void
+    protected function beforeSetFilterProdi(): void
     {
-        $prodi = ProgramStudi::all();
-        $faker = Faker::create('id_ID');
-        foreach ($prodi as $item) {
-            foreach (range(1, 5) as $index) {
-                $pl = CPL::create([
-                    'code' => 'CPL-' . $index . '-' . $item->code,
-                    'description' => 'Profile Lulusan ' . $item->name . ' ' . $index . '-' . $faker->sentence(12),
-                ]);
+        if (session('active_role') == 'Dosen') {
 
-                $pl->programStudis()->attach($item->id);
-            }
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+
+            $this->filter['prodi'] = $programStudi?->id;
+
+            return;
         }
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Profile Lulusan Berhasil Di Generate',
-            'timeout' => 2500
-        ]);
     }
-    public function getFormDataProperty(): array
-    {
-        throw new \Exception('Not implemented');
-    }
-    public function getProdiOptionsProperty()
+    public function getProgramStudisProperty()
     {
         return ProgramStudi::all();
     }
-    protected function view(): string
+
+    public function openSample()
     {
-        return 'livewire.master.cpl.index';
+        if ($this->filter['prodi'] == null) {
+            $this->form['prodi'] = ProgramStudi::pluck('id')->toArray();
+        } else {
+            $this->form['prodi'] = [$this->filter['prodi']];
+        }
+        $this->modal()->open('sampleModal');
     }
+
+    public function generateSample()
+    {
+        $this->validate([
+            'form.prodi' => 'required',
+            'form.jumlah' => 'required',
+        ]);
+
+        foreach ($this->form['prodi'] as $prodi) {
+            DB::transaction(function () use ($prodi) {
+                $faker = Faker::create('id_ID');
+                for ($i = 0; $i < $this->form['jumlah']; $i++) {
+                    $cpl = CPL::create([
+                        'code' => 'CPL-' . $faker->unique()->bothify('###'),
+                        'description' => $faker->sentence(25),
+                    ]);
+                    $cpl->programStudis()->attach($prodi);
+                }
+            });
+
+        }
+
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Success!',
+            'description' => 'Data Capaian Pembelajaran Lulusan Berhasil Di Generate',
+        ]);
+
+        $this->modal()->close('sampleModal');
+    }
+
 }

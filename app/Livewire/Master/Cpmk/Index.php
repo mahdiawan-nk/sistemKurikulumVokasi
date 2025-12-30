@@ -9,111 +9,91 @@ use Illuminate\Database\Eloquent\Builder;
 use Faker\Factory as Faker;
 use App\Models\ProgramStudi;
 use App\Models\CapaianPembelajaranMatakuliah as CPMK;
-
-#[Title('Capaian Pembelajaran Matakuliah')]
+use Illuminate\Support\Facades\DB;
 #[Layout('components.layouts.sidebar')]
 
 class Index extends BaseTable
 {
+    public string $title = 'Capaian Pembelajaran Matakuliah';
     public array $filter = [
         'prodi' => null
     ];
+    protected static string $model = CPMK::class;
+    protected static string $view = 'livewire.master.cpmk.index';
 
-    protected function model(): string
+    public array $relations = ['programStudis'];
+    protected array $filterable = [
+        'prodi' => ['type' => 'relation', 'relation' => 'programStudis', 'column' => 'program_studis.id'],
+    ];
+    protected array $searchable = [
+        'description',
+        'code'
+    ];
+
+    public $form = [
+        'prodi' => [],
+        'jumlah' => 1
+    ];
+    protected function beforeSetFilterProdi(): void
     {
-        return CPMK::class;
-    }
+        if (session('active_role') == 'Dosen') {
 
-    public string $title = 'Bahan Kajian';
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
 
-    protected function query(): Builder
-    {
-        return $this->model()::query()
-            ->with('programStudis')
-            ->when($this->filterValue('prodi'), function ($query, $prodi) {
-                $query->whereHas(
-                    'programStudis',
-                    fn($q) =>
-                    $q->where('program_studis.id', $prodi)
-                );
-            })
-            ->when(
-                $this->search,
-                fn($query, $search) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                })
-            );
-    }
+            $this->filter['prodi'] = $programStudi?->id;
 
-    public function openDelete($id)
-    {
-        $this->selectedId = $id;
-        $this->dialog()->confirm([
-            'width' => 'w-md',
-            'title' => 'Are you Sure?',
-            'description' => 'Data Akan Dihapus?',
-            'acceptLabel' => 'Yes, Delete it!',
-            'method' => 'confirmDelete',
-        ]);
-    }
-
-    public function confirmDelete(): void
-    {
-        $this->model()::findOrFail($this->selectedId)->delete();
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Berhasil Dihapus',
-            'timeout' => 2500
-        ]);
-        $this->reset();
-    }
-
-    public function openSample(): void
-    {
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Akan Generate Data ' . $this->title . '? 5 data Per Program Studi',
-            'acceptLabel' => 'Yes, Generate it!',
-            'method' => 'confirmGenerate',
-        ]);
-    }
-
-    public function confirmGenerate(): void
-    {
-        $prodi = ProgramStudi::all();
-        $faker = Faker::create('id_ID');
-        foreach ($prodi as $item) {
-            foreach (range(1, 10) as $index) {
-                $pl = CPMK::create([
-                    'code' => 'CPMK-' . $index . '-' . $item->code,
-                    'description' => 'Capaian Pembelajaran Matakuliah ' . $item->name . ' ' . $index . '-' . $faker->sentence(12),
-                ]);
-
-                $pl->programStudis()->attach($item->id);
-            }
+            return;
         }
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Berhasil Di Generate',
-            'timeout' => 2500
-        ]);
     }
-
-    public function getFormDataProperty(): array
-    {
-        throw new \Exception('Not implemented');
-    }
-
     public function getProdiOptionsProperty()
     {
-        return ProgramStudi::all();
+        return ProgramStudi::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'jenjang']);
     }
-    public function view(): string
+
+    public function openSample()
     {
-        return 'livewire.master.cpmk.index';
+        if ($this->filter['prodi'] == null) {
+            $this->form['prodi'] = ProgramStudi::pluck('id')->toArray();
+        } else {
+            $this->form['prodi'] = [$this->filter['prodi']];
+        }
+        $this->modal()->open('sampleModal');
+    }
+
+    public function generateSample()
+    {
+        $this->validate([
+            'form.prodi' => 'required',
+            'form.jumlah' => 'required',
+        ]);
+
+        foreach ($this->form['prodi'] as $prodi) {
+            DB::transaction(function () use ($prodi) {
+                $faker = Faker::create('id_ID');
+                for ($i = 0; $i < $this->form['jumlah']; $i++) {
+                    $cpl = CPMK::create([
+                        'code' => 'CPMK-' . $faker->unique()->bothify('###'),
+                        'description' => $faker->sentence(25),
+                    ]);
+                    $cpl->programStudis()->attach($prodi);
+                }
+            });
+
+        }
+
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Success!',
+            'description' => 'Data Capaian Pembelajaran Lulusan Berhasil Di Generate',
+        ]);
+
+        $this->modal()->close('sampleModal');
     }
 }

@@ -34,7 +34,7 @@ class PivotCplCpmkMk extends Pivot
     /**
      * Relasi ke MK
      */
-    public function matakuliah()
+    public function mk()
     {
         return $this->belongsTo(Matakuliah::class, 'mk_id');
     }

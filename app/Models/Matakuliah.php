@@ -89,4 +89,8 @@ class Matakuliah extends Model
             ->withTimestamps();
     }
 
+    public function MkCpmk(){
+        return $this->hasMany(PivotCpmkMk::class,'mk_id','id')->with('cpmk');
+    }
+
 }

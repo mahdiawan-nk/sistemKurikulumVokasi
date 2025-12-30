@@ -5,108 +5,131 @@ namespace App\Livewire\Master\Bk;
 use App\Livewire\Base\BaseTable;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use Illuminate\Database\Eloquent\Builder;
-
 use App\Models\ProgramStudi;
 use App\Models\BahanKajian as BK;
+use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
-#[Title('Bahan Kajian')]
+/**
+ * Livewire Bahan Kajian List Table
+ *
+ * Menggunakan BaseTable untuk:
+ *  - pagination
+ *  - search
+ *  - filter
+ *  - auto query builder
+ *  - toggle create / update / table
+ */
 #[Layout('components.layouts.sidebar')]
 class Index extends BaseTable
 {
-    public array $filter = [
-        'prodi' => null
+    public string $title = 'Bahan Kajian';
+    /* ----------------------------------------
+     | Model & View
+     |---------------------------------------- */
+    protected static string $model = BK::class;
+    protected static string $view = 'livewire.master.bk.index';
+
+    /* ----------------------------------------
+     | Table Config
+     |---------------------------------------- */
+    public array $relations = ['programStudis'];
+
+    /**
+     * daftar filter yang didukung
+     * cara kerja:
+     *  - type `relation` → auto whereHas
+     *  - column opsional → jika pivot / custom field
+     */
+    protected array $filterable = [
+        'prodi' => [
+            'type' => 'relation',
+            'relation' => 'programStudis',
+            'column' => 'program_studis.id',
+        ],
     ];
 
-    public string $title = 'Bahan Kajian';
+    /**
+     * daftar kolom pencarian
+     */
+    protected array $searchable = ['name', 'code'];
 
-    protected function query(): Builder
-    {
-        return BK::query()
-            ->with('programStudis')
-            ->when($this->filterValue('prodi'), function ($query, $prodi) {
-                $query->whereHas(
-                    'programStudis',
-                    fn($q) =>
-                    $q->where('program_studis.id', $prodi)
-                );
-            })
-            ->when(
-                $this->search,
-                fn($query, $search) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                })
-            );
-    }
-
-    public function openDelete($id)
-    {
-        $this->selectedId = $id;
-        $this->dialog()->confirm([
-            'width' => 'w-md',
-            'title' => 'Are you Sure?',
-            'description' => 'Data Akan Dihapus?',
-            'acceptLabel' => 'Yes, Delete it!',
-            'method' => 'confirmDelete',
-        ]);
-    }
-
-    public function confirmDelete(): void
-    {
-        BK::findOrFail($this->selectedId)->delete();
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Berhasil Dihapus',
-            'timeout' => 2500
-        ]);
-        $this->reset();
-    }
-    public function openSample(): void
-    {
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Akan Generate Data ' . $this->title . '? 5 data Per Program Studi',
-            'acceptLabel' => 'Yes, Generate it!',
-            'method' => 'confirmGenerate',
-        ]);
-    }
-
-    public function confirmGenerate(): void
-    {
-        $prodi = ProgramStudi::all();
-        $faker = Faker::create('id_ID');
-        foreach ($prodi as $item) {
-            foreach (range(1, 5) as $index) {
-                $pl = BK::create([
-                    'code' => 'BK-' . $index . '-' . $item->code,
-                    'name' => $faker->sentence(3),
-                    'description' => 'Bahan Kajian ' . $item->name . ' ' . $index . '-' . $faker->sentence(12),
-                ]);
-
-                $pl->programStudis()->attach($item->id);
-            }
-        }
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Profile Lulusan Berhasil Di Generate',
-            'timeout' => 2500
-        ]);
-    }
-    public function getFormDataProperty(): array
-    {
-        throw new \Exception('Not implemented');
-    }
-
+    /**
+     * nilai default filter
+     */
+    public array $filter = [
+        'prodi' => null,
+    ];
+    public $form = [
+        'prodi' => [],
+        'jumlah' => 1
+    ];
+    /* ----------------------------------------
+     | Computed Property
+     |---------------------------------------- */
+    /**
+     * options dropdown program studi
+     */
     public function getProdiOptionsProperty()
     {
-        return ProgramStudi::all();
+        return ProgramStudi::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'jenjang']);
     }
-    public function view(): string
+    protected function beforeSetFilterProdi(): void
     {
-        return 'livewire.master.bk.index';
+        if (session('active_role') == 'Dosen') {
+
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+
+            $this->filter['prodi'] = $programStudi?->id;
+
+            return;
+        }
     }
+    public function openSample()
+    {
+        if ($this->filter['prodi'] == null) {
+            $this->form['prodi'] = ProgramStudi::pluck('id')->toArray();
+        } else {
+            $this->form['prodi'] = [$this->filter['prodi']];
+        }
+        $this->modal()->open('sampleModal');
+    }
+
+    public function generateSample()
+    {
+        $this->validate([
+            'form.prodi' => 'required',
+            'form.jumlah' => 'required',
+        ]);
+
+        foreach ($this->form['prodi'] as $prodi) {
+            DB::transaction(function () use ($prodi) {
+                $faker = Faker::create('id_ID');
+                for ($i = 0; $i < $this->form['jumlah']; $i++) {
+                    $cpl = BK::create([
+                        'code' => 'BK-' . $faker->unique()->bothify('###'),
+                        'name' => $faker->sentence(5),
+                        'description' => $faker->sentence(25),
+                    ]);
+                    $cpl->programStudis()->attach($prodi);
+                }
+            });
+
+        }
+
+        $this->notification()->send([
+            'icon' => 'success',
+            'title' => 'Success!',
+            'description' => 'Data Capaian Pembelajaran Lulusan Berhasil Di Generate',
+        ]);
+
+        $this->modal()->close('sampleModal');
+    }
+
 }

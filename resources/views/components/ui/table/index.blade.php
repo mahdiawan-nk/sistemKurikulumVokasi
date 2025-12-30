@@ -4,8 +4,8 @@
     'columns' => [],
     // Action default
     'showAction' => true,
-    'editAction' => null, 
-    'deleteAction' => null, 
+    'editAction' => null,
+    'deleteAction' => null,
 ])
 
 <div class="relative w-full overflow-visible rounded-sm border border-neutral-300 dark:border-neutral-700">

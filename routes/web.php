@@ -13,7 +13,11 @@ use App\Livewire\Master\Matakuliah\Index as Matkul;
 use App\Livewire\Master\Dosen\Index as Dosen;
 use App\Livewire\Master\ProgramStudi\Index as ProgramStudi;
 use App\Livewire\Kurikulum\Index as Kurikulum;
-
+use App\Livewire\Kurikulum\CreateUpdate as KurikulumCreateUpdate;
+use App\Livewire\Kurikulum\MatriksData;
+use App\Livewire\PerangkatAjar\Index as PerangkatAjar;
+use App\Livewire\PerangkatAjar\KontrakKuliah\Index as KontrakKuliah;
+use App\Livewire\PerangkatAjar\KontrakKuliah\CreateUpdate as KontrakKuliahCreateUpdate;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -43,7 +47,24 @@ Route::middleware(['auth'])->group(function () {
             Route::get('program-studi', ProgramStudi::class)->name('program-studi.index');
 
         });
-    Volt::route('kurikulum', Kurikulum::class)->name('kurikulum.index');
+    Route::prefix('kurikulum')
+        ->name('kurikulum.')
+        ->group(function () {
+            Volt::route('/', Kurikulum::class)->name('index');
+            Volt::route('create/{id?}', KurikulumCreateUpdate::class)->name('create');
+            Volt::route('update/{id?}', KurikulumCreateUpdate::class)->name('update');
+            Volt::route('matriks-data/{id}', MatriksData::class)->name('matriks-data');
+        });
+
+    Route::prefix('perangkat-ajar')
+        ->name('perangkat-ajar.')
+        ->group(function () {
+            Volt::route('/', PerangkatAjar::class)->name('index');
+            Volt::route('kontrak-kuliah', KontrakKuliah::class)->name('kontrak-kuliah.index');
+            Volt::route('kontrak-kuliah/create/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.create');
+            Volt::route('kontrak-kuliah/update/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.update');
+        });
+
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');
     Volt::route('settings/appearance', 'settings.appearance')->name('appearance.edit');

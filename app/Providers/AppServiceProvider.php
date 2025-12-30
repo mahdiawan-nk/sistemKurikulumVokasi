@@ -34,8 +34,8 @@ class AppServiceProvider extends ServiceProvider
             return <<<PHP
             <?php
                 echo ($condition)
-                    ? 'dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-white'
-                    : 'bg-black/10 dark:bg-black/10 dark:text-white dark:hover:bg-white/5 dark:hover:text-white';
+                    ? 'bg-black/10 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-white'
+                    : 'bg-gray-100/10 dark:bg-black/10 dark:text-white dark:hover:bg-white/5 dark:hover:text-white';
             ?>
             PHP;
         });

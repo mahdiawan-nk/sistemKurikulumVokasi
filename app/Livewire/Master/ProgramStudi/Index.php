@@ -9,68 +9,71 @@ use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\ProgramStudi;
 use App\Models\ProgramStudi as PRODI;
-
+use App\Repositories\ApiClientRepository;
+use Flux\Flux;
 #[Title('Program Studi')]
 #[Layout('components.layouts.sidebar')]
 
 class Index extends BaseTable
 {
-
-    protected function model(): string
-    {
-        return PRODI::class;
-    }
-
+    protected string $apiUrl = "https://siak.poltek-kampar.ac.id/data_prodi/apiProdi";
     public string $title = 'Program Studi';
+    protected array $searchable = [
+        'code',
+        'name',
+    ];
+    protected static string $model = PRODI::class;
+    protected static string $view = 'livewire.master.program-studi.index';
 
-    protected function query(): Builder
+    public array $dataApi = [];
+    
+    public function openModal()
     {
-        return $this->model()::query()
-            ->when(
-                $this->search,
-                fn($query, $search) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%");
-                })
-            );
+        $this->dataApi = [];
+        Flux::modal('edit-profile')->show();
     }
 
-    public function openDelete($id)
+    public function getDataFromApi(ApiClientRepository $api)
     {
-        $this->selectedId = $id;
-        $this->dialog()->confirm([
-            'width' => 'w-md',
-            'title' => 'Are you Sure?',
-            'description' => 'Data Akan Dihapus?',
-            'acceptLabel' => 'Yes, Delete it!',
-            'method' => 'confirmDelete',
-        ]);
+        $response = $api->get($this->apiUrl);
+
+        if (empty($response)) {
+            $this->notification()->send([
+                'icon' => 'error',
+                'title' => 'Error Notification!',
+                'description' => 'Gagal mengambil data dari API (timeout). Coba lagi nanti',
+            ]);
+            return;
+        }
+
+        $this->dataApi = collect($response)->map(fn($item) => [
+            'code' => $item['kode_prodi'],
+            'name' => $item['nama_prodi'],
+            'jenjang' => $item['jenjang'],
+            'singkatan' => $item['jenjang'] . '-' . $item['singkatan'],
+        ])->toArray();
     }
 
-    public function confirmDelete(): void
+    public function syncToDatabase()
     {
-        $this->model()::findOrFail($this->selectedId)->delete();
+        PRODI::upsert(
+            collect($this->dataApi)
+                ->map(fn($item) => [
+                    ...$item,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ])->toArray(),
+            ['code'],
+            ['name', 'jenjang', 'singkatan', 'updated_at']
+        );
+
         $this->notification()->send([
             'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Berhasil Dihapus',
-            'timeout' => 2500
+            'title' => 'Success',
+            'description' => 'Data Berhasil di sinkronkan',
         ]);
-        $this->reset();
+
+        Flux::modal('edit-profile')->close();
     }
 
-    public function getFormDataProperty(): array
-    {
-        throw new \Exception('Not implemented');
-    }
-
-    public function getProdiOptionsProperty()
-    {
-        return ProgramStudi::all();
-    }
-    public function view(): string
-    {
-        return 'livewire.master.program-studi.index';
-    }
 }

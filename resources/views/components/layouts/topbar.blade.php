@@ -15,67 +15,77 @@
         </a>
 
         <!-- USER MENU -->
-        <div x-data="{ open: false }" class="relative">
-            <!-- Mobile: Photo Only -->
+        <div x-data="{ open: false }" class="relative font-sans">
             <button @click="open = !open"
-                class="md:hidden flex items-center w-10 h-10 rounded-full overflow-hidden border border-neutral-200">
-                <img src="{{ asset('images/logo-polkam.png') }}" class="object-cover w-full h-full">
-            </button>
+                class="group flex items-center gap-3 p-1.5 rounded-full md:rounded-lg transition-all duration-200 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                :class="open ? 'bg-neutral-100' : ''">
 
-            <!-- Desktop: Photo + Name + Email -->
-            <button @click="open = !open"
-                class="hidden md:flex items-center py-2 pr-12 pl-3 h-12 text-sm font-medium transition-colors text-neutral-700">
+                <div class="relative w-9 h-9">
+                    <img src="{{ asset('images/logo-polkam.png') }}"
+                        class="w-full h-full object-cover rounded-full border border-neutral-200 shadow-sm"
+                        alt="Profile">
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+                    </div>
+                </div>
 
-                <img src="{{ asset('images/logo-polkam.png') }}"
-                    class="object-cover w-8 h-8 rounded-full border border-neutral-200" />
+                <div class="hidden md:flex flex-col text-left leading-tight min-w-[100px]">
+                    <span class="text-sm font-semibold text-neutral-800 tracking-tight">
+                        {{ auth()->user()->name }}
+                    </span>
+                    <span class="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">
+                        {{ session('active_role', 'No Role') }}
+                    </span>
+                </div>
 
-                <span class="flex flex-col ml-2 leading-none">
-                    <span>{{ auth()->user()->name }}</span>
-                    <span class="text-xs font-light text-neutral-800">{{ auth()->user()->email }}</span>
-                </span>
-
-                <svg class="absolute right-0 mr-3 w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                <svg class="hidden md:block w-4 h-4 text-neutral-400 transition-transform duration-200"
+                    :class="open ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
 
-            <!-- DROPDOWN -->
-            <div x-show="open" @click.away="open = false" x-transition
-                class="absolute right-0 mt-3 w-56 rounded-md bg-white shadow-md border border-neutral-200/70 p-1 z-50"
-                x-cloak>
+            <div x-show="open" @click.away="open = false" x-cloak x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="absolute right-0 mt-2 w-64 rounded-xl bg-white shadow-xl border border-neutral-200/60 p-2 z-50">
 
-                <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
-                <div class="h-px bg-neutral-200 my-1"></div>
+                <div class="px-3 py-2 mb-1">
+                    <p class="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Account</p>
+                </div>
 
-                <a href="{{ route('profile.edit') }}" wire:navigate
-                    class="flex items-center px-2 py-1.5 text-sm rounded hover:bg-neutral-100">
+                <div class="space-y-1 mb-2">
+                   <livewire:actions.switch-roles />
+                </div>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-                        stroke="currentColor" stroke-width="2" class="mr-2">
-                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    Profile
-                </a>
+                <div class="h-px bg-neutral-100 mx-2 mb-2"></div>
 
-                <div class="h-px bg-neutral-200 my-1"></div>
-
-                <form method="POST" action="{{ route('logout') }}" class="w-full">
-                    @csrf
-                    <button type="submit"
-                        class="flex w-full items-center px-2 py-1.5 text-sm rounded hover:bg-neutral-100">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-                            stroke="currentColor" stroke-width="2" class="mr-2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" x2="9" y1="12" y2="12"></line>
+                <div class="space-y-1">
+                    <a href="{{ route('profile.edit') }}" wire:navigate
+                        class="flex items-center px-3 py-2 text-sm text-neutral-600 rounded-lg hover:bg-neutral-50 transition-colors group">
+                        <svg class="w-4 h-4 mr-3 text-neutral-400 group-hover:text-neutral-600" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Log out
-                    </button>
-                </form>
+                        Manage Profile
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                            class="flex w-full items-center px-3 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors group">
+                            <svg class="w-4 h-4 mr-3 text-red-400 group-hover:text-red-600" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 

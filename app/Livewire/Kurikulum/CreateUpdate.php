@@ -12,7 +12,16 @@ use App\Models\CapaianPembelajaranMatakuliah;
 use App\Models\SubCapaianPembelajaranMatakuliah;
 use App\Models\Matakuliah;
 use Illuminate\Support\Collection;
+use App\Models\PivotPlCpl;
+use App\Models\PivotCplBk;
+use App\Models\PivotBkMk;
+use App\Models\PivotCpmkSubcpmk;
+use App\Models\PivotCplMk;
+use App\Models\PivotCpmkMk;
+use App\Models\PivotCplBkMk;
+use App\Models\PivotCplCpmkMk;
 
+use Livewire\Attributes\Url;
 class CreateUpdate extends BaseForm
 {
     protected array $relations = ['programStudis'];
@@ -28,7 +37,6 @@ class CreateUpdate extends BaseForm
         7 => 'CPL - BK - MK',
         8 => 'CPL - CPMK - MK',
     ];
-
     public int $tabActive = 0;
     public int $maxTab = 8;
     public bool $showModalCplBkMK = false;
@@ -95,11 +103,38 @@ class CreateUpdate extends BaseForm
     ];
     public $programStudis = null;
 
-    public function setTabActive($key)
+    public $listCpl = [];
+    public $listPl = [];
+    public $listBk = [];
+    public $listMk = [];
+    public $listMkOption = [];
+    public $listCpmk = [];
+    public $listSubCpmk = [];
+
+
+    public function mount($id = null)
     {
-        $this->tabActive = $key;
+        $this->selectedId = $id;
+        $this->setFormProdi();
+        if ($id != null) {
+            $this->openEdits($this->selectedId, 0);
+        }
     }
 
+    protected function setFormProdi()
+    {
+        // Child override dapat memanggil parent::setFilterProdi() jika ingin extend
+        if (session('active_role') == 'Kaprodi') {
+
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+            $this->form['programStudis'] = [$programStudi?->id];
+        }
+    }
     protected function rulesByStep(): array
     {
         return match ($this->tabActive) {
@@ -154,12 +189,122 @@ class CreateUpdate extends BaseForm
             default => [],
         };
     }
+
+    public function confirmNextStep()
+    {
+        $this->dialog()->confirm([
+            'title' => 'Are you Sure?',
+            'description' => 'Save the information?',
+            'acceptLabel' => 'Yes, save it',
+            'method' => 'nextStep',
+        ]);
+    }
     public function nextStep()
     {
         $this->validate($this->rulesByStep());
+        $this->saveByNextTab(null, $this->tabActive);
 
         if ($this->tabActive < $this->maxTab) {
             $this->tabActive++;
+        }
+        $this->loadDataMaster();
+        // dump('Before OpenEdits', $this->form['cpl_pl']);
+        $this->openEdits($this->selectedId, $this->tabActive);
+        // dump('After OpenEdits', $this->form['cpl_pl']);
+    }
+
+    public function loadDataMaster()
+    {
+        $this->listPl = [];
+        $this->listCpl = [];
+        $this->listBk = [];
+        $this->listMk = [];
+        $this->listCpmk = [];
+        $this->listSubCpmk = [];
+        $this->listMkOption = [];
+        switch ($this->tabActive) {
+            case 1:
+                $this->form['cpl_pl'] = [];
+                $this->listPl = $this->getProfileLulusansProperty();
+                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                foreach ($this->listCpl as $cpl) {
+                    $this->form['cpl_pl'][$cpl->id] = [];
+                }
+                break;
+            case 2:
+                $this->form['bk_cpl'] = [];
+                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                $this->listBk = $this->getBahanKajiansProperty();
+                foreach ($this->listBk as $b) {
+                    $this->form['bk_cpl'][$b->id] = [];
+                }
+                break;
+            case 3:
+                $this->form['bk_mk'] = [];
+                $this->listBk = $this->getBahanKajiansProperty();
+                $this->listMk = $this->getMatakuliahsProperty();
+                $this->listMkOption = $this->getMaktulSelectProperty();
+                foreach ($this->listBk as $b) {
+                    $this->form['bk_mk'][$b->id] = [];
+                }
+                break;
+            case 4:
+                $this->form['cpmk_subcpmk'] = [];
+                $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
+                $this->listSubCpmk = $this->getSubCapaianPembelajaranMatakuliahsProperty();
+                foreach ($this->listCpmk as $cpmk) {
+                    $this->form['cpmk_subcpmk'][$cpmk->id] = [];
+                }
+                break;
+            case 5:
+                $this->form['mk_cpl'] = [];
+                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                $this->listMk = $this->getMatakuliahsProperty();
+                $this->listMkOption = $this->getMaktulSelectProperty();
+
+                foreach ($this->listMk as $mk) {
+                    $this->form['mk_cpl'][$mk->id] = [];
+                }
+                break;
+            case 6:
+                $this->form['cpmk_mk'] = [];
+                $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
+                $this->listMk = $this->getMatakuliahsProperty();
+                $this->listMkOption = $this->getMaktulSelectProperty();
+
+                foreach ($this->listCpmk as $cpmk) {
+                    $this->form['cpmk_mk'][$cpmk->id] = [];
+                }
+                break;
+            case 7:
+                $this->form['cpl_bk_mk'] = [];
+                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                $this->listBk = $this->getBahanKajiansProperty();
+                $this->listMk = $this->getMatakuliahsProperty();
+                $this->listMkOption = $this->getMaktulSelectProperty();
+
+                foreach ($this->listBk as $b) {
+                    foreach ($this->listCpl as $cpl) {
+                        $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
+
+                    }
+                }
+                break;
+            case 8:
+                $this->form['cpl_cpmk_mk'] = [];
+                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
+                $this->listMk = $this->getMatakuliahsProperty();
+                $this->listMkOption = $this->getMaktulSelectProperty();
+
+                foreach ($this->listCpl as $cpl) {
+                    foreach ($this->listCpmk as $item) {
+                        $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -168,6 +313,14 @@ class CreateUpdate extends BaseForm
         if ($this->tabActive > 0) {
             $this->tabActive--;
         }
+        $this->loadDataMaster();
+        $this->openEdits($this->selectedId, $this->tabActive);
+
+    }
+
+    protected function loadByPrevStep()
+    {
+
     }
     protected function selectedProdiIds(): array
     {
@@ -201,52 +354,50 @@ class CreateUpdate extends BaseForm
     {
         // $this->form['programStudis'] = array_filter($this->form['programStudis']);
         $this->form['programStudis'] = (array) $value;
-        $this->getProfileLulusansProperty();
-        $this->getMatakuliahsProperty();
-        $cpls = $this->getCapaianPembelajaranLulusansProperty();
-        $bk = $this->getBahanKajiansProperty();
-        $mk = $this->getMatakuliahsProperty();
-        $cpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
-        $subcpmk = $this->getSubCapaianPembelajaranMatakuliahsProperty();
+        // $this->getProfileLulusansProperty();
+        // $this->getMatakuliahsProperty();
+        // $cpls = $this->getCapaianPembelajaranLulusansProperty();
+        // $bk = $this->getBahanKajiansProperty();
+        // $mk = $this->getMatakuliahsProperty();
+        // $cpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
+        // $subcpmk = $this->getSubCapaianPembelajaranMatakuliahsProperty();
 
-        // reset dan init mapping cpl => []
-        $this->form['cpl_pl'] = [];
-        $this->form['bk_cpl'] = [];
-        $this->form['bk_mk'] = [];
-        $this->form['cpmk_subcpmk'] = [];
-        $this->form['mk_cpl'] = [];
-        $this->form['cpmk_mk'] = [];
-        $this->form['cpl_bk_mk'] = [];
-        $this->form['cpl_cpmk_mk'] = [];
+        // // reset dan init mapping cpl => []
+        // $this->form['cpl_pl'] = [];
+        // $this->form['bk_cpl'] = [];
+        // $this->form['bk_mk'] = [];
+        // $this->form['cpmk_subcpmk'] = [];
+        // $this->form['mk_cpl'] = [];
+        // $this->form['cpmk_mk'] = [];
+        // $this->form['cpl_bk_mk'] = [];
+        // $this->form['cpl_cpmk_mk'] = [];
 
-        foreach ($cpls as $cpl) {
-            $this->form['cpl_pl'][$cpl->id] = [];
-            foreach ($cpmk as $item) {
-                $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
-            }
+        // foreach ($cpls as $cpl) {
+        //     $this->form['cpl_pl'][$cpl->id] = [];
+        //     foreach ($cpmk as $item) {
+        //         $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
+        //     }
+        // }
 
-        }
+        // foreach ($bk as $b) {
+        //     foreach ($cpls as $cpl) {
+        //         $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
 
+        //     }
+        // }
+        // foreach ($bk as $b) {
+        //     $this->form['bk_cpl'][$b->id] = [];
+        //     $this->form['bk_mk'][$b->id] = [];
+        // }
 
-        foreach ($bk as $b) {
-            foreach ($cpls as $cpl) {
-                $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
+        // foreach ($mk as $m) {
+        //     $this->form['mk_cpl'][$m->id] = [];
 
-            }
-        }
-        foreach ($bk as $b) {
-            $this->form['bk_cpl'][$b->id] = [];
-            $this->form['bk_mk'][$b->id] = [];
-        }
-
-        foreach ($mk as $m) {
-            $this->form['mk_cpl'][$m->id] = [];
-
-        }
-        foreach ($cpmk as $cpmks) {
-            $this->form['cpmk_subcpmk'][$cpmks->id] = [];
-            $this->form['cpmk_mk'][$cpmks->id] = [];
-        }
+        // }
+        // foreach ($cpmk as $cpmks) {
+        //     $this->form['cpmk_subcpmk'][$cpmks->id] = [];
+        //     $this->form['cpmk_mk'][$cpmks->id] = [];
+        // }
     }
 
     public function getProfileLulusansProperty()
@@ -583,15 +734,6 @@ class CreateUpdate extends BaseForm
         $this->showModalCplCpmkMK = false;
     }
 
-    public function mount($id = null)
-    {
-        // $this->form['programStudis'] = [1];
-        $this->selectedId = $id;
-        if ($id) {
-            $this->openEdits($this->selectedId);
-        }
-
-    }
     protected function model(): string
     {
         return Kurikulum::class;
@@ -610,7 +752,7 @@ class CreateUpdate extends BaseForm
             // 'form.cpl_pl.*' => 'required',
         ];
     }
-    protected function openEdits(int $id): void
+    protected function openEdits(int $id, $activeTab = 0): void
     {
         $kurikulum = Kurikulum::with([
             'programStudis:id,name,code',
@@ -624,197 +766,355 @@ class CreateUpdate extends BaseForm
             'pivotCplCpmkMk:id,kurikulum_id,cpl_id,cpmk_id,mk_id',
         ])->findOrFail($id);
 
-        // dump($kurikulum->programStudis->id);
+        switch ($activeTab) {
+            case 0:
+                $this->tabActive = 0;
+                $this->form['name'] = $kurikulum->name;
+                $this->form['year'] = $kurikulum->year;
+                $this->form['version'] = $kurikulum->version;
+                $this->form['type'] = $kurikulum->type;
+                $this->form['status'] = $kurikulum->status;
+                $this->form['created_by'] = $kurikulum->created_by;
+                $this->form['programStudis'] = [$kurikulum->programStudis->id];
+                break;
+            case 1:
+                $this->tabActive = 1;
 
-        // Bind metadata ke form
-        $this->form['name'] = $kurikulum->name;
-        $this->form['year'] = $kurikulum->year;
-        $this->form['version'] = $kurikulum->version;
-        $this->form['type'] = $kurikulum->type;
-        $this->form['status'] = $kurikulum->status;
-        $this->form['created_by'] = $kurikulum->created_by;
-        $this->form['programStudis'] = $kurikulum->programStudis->id;
+                foreach ($kurikulum->pivotPlCpl as $pivot) {
+                    $this->form['cpl_pl'][$pivot->cpl_id][] = $pivot->pl_id;
+                }
+                break;
+            case 2:
+                $this->tabActive = 2;
+                // Bind pivot BK ↔ CPL
+                foreach ($kurikulum->pivotCplBk as $pivot) {
+                    $this->form['bk_cpl'][$pivot->bk_id][] = $pivot->cpl_id;
+                }
 
-        // Reset pivot forms
-        $this->form['cpl_pl'] = [];
-        $this->form['bk_cpl'] = [];
-        $this->form['bk_mk'] = [];
-        $this->form['cpmk_subcpmk'] = [];
-        $this->form['mk_cpl'] = [];
-        $this->form['cpmk_mk'] = [];
-        $this->form['cpl_bk_mk'] = [];
-        $this->form['cpl_cpmk_mk'] = [];
-        // Bind pivot CPL ↔ PL
-        foreach ($kurikulum->pivotPlCpl as $pivot) {
-            $this->form['cpl_pl'][$pivot->cpl_id][] = $pivot->pl_id;
+                break;
+            case 3:
+                $this->tabActive = 3;
+                foreach ($kurikulum->pivotBkMk as $pivot) {
+                    $this->form['bk_mk'][$pivot->bk_id][] = $pivot->mk_id;
+                }
+
+                foreach ($this->form['bk_mk'] as $bkId => $mkIds) {
+
+                    $mkIds = array_values(array_unique($mkIds));
+
+                    $mks = $this->getMatakuliahsProperty()
+                        ->whereIn('id', $mkIds);
+
+                    $this->setTempSelectBkMK[$bkId] = [
+                        'id' => $mkIds,
+                        'code' => $mks->pluck('code')->values()->toArray(),
+                    ];
+                }
+
+                break;
+            case 4:
+                $this->tabActive = 4;
+                // Bind pivot CPMK ↔ SubCPMK
+                foreach ($kurikulum->pivotCpmkSubCpmk as $pivot) {
+                    $this->form['cpmk_subcpmk'][$pivot->cpmk_id][] = $pivot->subcpmk_id;
+                }
+                break;
+            case 5:
+                $this->tabActive = 5;
+                foreach ($kurikulum->pivotCplMk as $pivot) {
+                    $this->form['mk_cpl'][$pivot->mk_id][] = $pivot->cpl_id;
+                }
+                break;
+            case 6:
+                $this->tabActive = 6;
+                foreach ($kurikulum->pivotCpmkMk as $pivot) {
+                    $this->form['cpmk_mk'][$pivot->cpmk_id][] = $pivot->mk_id;
+                }
+                foreach ($this->form['cpmk_mk'] as $cpmkId => $mkIds) {
+
+                    $mkIds = array_values(array_unique($mkIds));
+
+                    $mks = $this->getMatakuliahsProperty()
+                        ->whereIn('id', $mkIds);
+
+                    $this->setTempSelectCpmkMK[$cpmkId] = [
+                        'id' => $mkIds,
+                        'code' => $mks->pluck('code')->values()->toArray(),
+                    ];
+                }
+                break;
+            case 7:
+                $this->tabActive = 7;
+                foreach ($kurikulum->pivotCplBkMk as $pivot) {
+                    $this->form['cpl_bk_mk'][$pivot->bk_id][$pivot->cpl_id][] = $pivot->mk_id;
+                }
+
+                foreach ($this->form['cpl_bk_mk'] as $bkId => $cplIds) {
+
+                    foreach ($cplIds as $cplId => $mkIds) {
+
+                        $mkIds = array_values(array_unique($mkIds));
+
+                        $mks = $this->getMatakuliahsProperty()
+                            ->whereIn('id', $mkIds);
+
+                        $this->setTempSelectCplBkMK[$bkId][$cplId] = [
+                            'id' => $mkIds,
+                            'code' => $mks->pluck('code')->values()->toArray(),
+                        ];
+                    }
+                }
+                break;
+            case 8:
+                $this->tabActive = 8;
+                $kurikulum->pivotCplCpmkMk()
+                    ->where('kurikulum_id', $id)
+                    ->get()
+                    ->each(function ($pivot) {
+                        $this->form['cpl_cpmk_mk'][$pivot->cpmk_id][$pivot->cpl_id][] = $pivot->mk_id;
+                    });
+                foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplIds) {
+
+                    foreach ($cplIds as $cplId => $mkIds) {
+
+                        $mkIds = array_values(array_unique($mkIds));
+
+                        $mks = $this->getMatakuliahsProperty()
+                            ->whereIn('id', $mkIds);
+
+                        $this->setTempSelectCplCpmkMK[$cpmkId][$cplId] = [
+                            'id' => $mkIds,
+                            'code' => $mks->pluck('code')->values()->toArray(),
+                        ];
+                    }
+                }
+                break;
+            default:
+                $this->tabActive = 0;
         }
 
-        // Bind pivot BK ↔ CPL
-        foreach ($kurikulum->pivotCplBk as $pivot) {
-            $this->form['bk_cpl'][$pivot->bk_id][] = $pivot->cpl_id;
-        }
-
-        // Bind pivot BK ↔ MK
-        foreach ($kurikulum->pivotBkMk as $pivot) {
-            $this->form['bk_mk'][$pivot->bk_id][] = $pivot->mk_id;
-        }
-
-        dump($this->form['bk_mk']);
-
-        // Bind pivot CPMK ↔ SubCPMK
-        foreach ($kurikulum->pivotCpmkSubCpmk as $pivot) {
-            $this->form['cpmk_subcpmk'][$pivot->cpmk_id][] = $pivot->subcpmk_id;
-        }
-
-        // Bind pivot MK ↔ CPL
-        foreach ($kurikulum->pivotCplMk as $pivot) {
-            $this->form['mk_cpl'][$pivot->mk_id][] = $pivot->cpl_id;
-        }
-
-        // Bind pivot CPMK ↔ MK
-        foreach ($kurikulum->pivotCpmkMk as $pivot) {
-            $this->form['cpmk_mk'][$pivot->cpmk_id][] = $pivot->mk_id;
-        }
-
-        // Bind pivot CPL ↔ BK ↔ MK
-        foreach ($kurikulum->pivotCplBkMk as $pivot) {
-            $this->form['cpl_bk_mk'][$pivot->bk_id][$pivot->cpl_id][] = $pivot->mk_id;
-        }
-
-        // Bind pivot CPL ↔ CPMK ↔ MK
-        $kurikulum->pivotCplCpmkMk()
-            ->where('kurikulum_id', $id)
-            ->get()
-            ->each(function ($pivot) {
-                $this->form['cpl_cpmk_mk'][$pivot->cpmk_id][$pivot->cpl_id][] = $pivot->mk_id;
-            });
-
-        // Simpan sementara ke setTempSelect agar modal bisa membaca data lama
-        $this->setTempSelectCpmkMK = $this->form['cpmk_mk'];
-        $this->setTempSelectBkMK = $this->form['bk_mk'];
-        $this->setTempSelectCplBkMK = $this->form['cpl_bk_mk'];
-        $this->setTempSelectCplCpmkMK = $this->form['cpl_cpmk_mk'];
     }
 
-    public function previewData($cloneKurikulumId = null)
+    protected function buildPivotData(
+        array $source,
+        array $mapping,
+        int $kurikulumId
+    ): array {
+        $result = [];
+
+        foreach ($source as $key1 => $level2) {
+
+            // level 1 → level 2 (array of ids)
+            if (is_array($level2) && isset($mapping['level2'])) {
+                foreach ((array) $level2 as $value2) {
+                    $result[] = array_merge(
+                        ['kurikulum_id' => $kurikulumId],
+                        [
+                            $mapping['level1'] => $key1,
+                            $mapping['level2'] => $value2,
+                        ]
+                    );
+                }
+            }
+
+            // level 1 → level 2 → level 3
+            if (is_array($level2) && isset($mapping['level3'])) {
+                foreach ($level2 as $key2 => $level3) {
+                    foreach ((array) $level3 as $value3) {
+                        $result[] = array_merge(
+                            ['kurikulum_id' => $kurikulumId],
+                            [
+                                $mapping['level1'] => $key1,
+                                $mapping['level2'] => $key2,
+                                $mapping['level3'] => $value3,
+                            ]
+                        );
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected function syncPivot(
+        string $model,
+        int $kurikulumId,
+        array $data
+    ): void {
+        $model::where('kurikulum_id', $kurikulumId)->delete();
+
+        if (!empty($data)) {
+            $model::insert($data);
+        }
+    }
+
+    public function saveByNextTab($currentKurikulumId = null, $tabActive = null)
     {
-        // Set user & status default
-        $this->form['created_by'] = auth()->user()->id;
-        $this->form['status'] = 'draft';
-
-        // Metadata Kurikulum
-        $dataMetaDataKurikulum = [
-            'prodi_id' => $this->form['programStudis'][0] ?? null,
-            'name' => $this->form['name'],
-            'year' => $this->form['year'],
-            'version' => $this->form['version'],
-            'type' => $this->form['type'],
-            'status' => $this->form['status'],
-            'created_by' => $this->form['created_by'],
-            'parent_id' => $cloneKurikulumId, // jika clone
+        $kurikulumId = $currentKurikulumId ?? $this->selectedId;
+        $notify = [
+            'icon' => 'success',
+            'title' => 'Sukses!',
+            'description' => "Data berhasil disimpan.",
         ];
+        switch ($tabActive) {
+            case 0:
+                $this->form['created_by'] = auth()->user()->id;
+                $this->form['status'] = 'draft';
 
-        // Buat Kurikulum baru atau clone
-        $kurikulum = Kurikulum::create($dataMetaDataKurikulum);
-
-        $kurikulumId = $kurikulum->id;
-
-        // === Pivot PL <-> CPL ===
-        foreach ($this->form['cpl_pl'] as $cplId => $plIds) {
-            foreach ((array) $plIds as $plId) {
-                $kurikulum->pivotPlCpl()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'pl_id' => $plId,
-                    'cpl_id' => $cplId,
-                ]);
-            }
-        }
-
-        // === Pivot CPL <-> BK ===
-        foreach ($this->form['bk_cpl'] as $bkId => $cplIds) {
-            foreach ((array) $cplIds as $cplId) {
-                $kurikulum->pivotCplBk()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'cpl_id' => $cplId,
-                    'bk_id' => $bkId,
-                ]);
-            }
-        }
-
-        // === Pivot BK <-> MK ===
-        foreach ($this->form['bk_mk'] as $bkId => $mkIds) {
-            foreach ((array) $mkIds as $mkId) {
-                $kurikulum->pivotBkMk()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'bk_id' => $bkId,
-                    'mk_id' => $mkId,
-                ]);
-            }
-        }
-
-        // === Pivot CPMK <-> SubCPMK ===
-        foreach ($this->form['cpmk_subcpmk'] as $cpmkId => $subcpmkIds) {
-            foreach ((array) $subcpmkIds as $subcpmkId) {
-                $kurikulum->pivotCpmkSubcpmk()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'cpmk_id' => $cpmkId,
-                    'subcpmk_id' => $subcpmkId,
-                ]);
-            }
-        }
-
-        // === Pivot CPL <-> MK ===
-        foreach ($this->form['mk_cpl'] as $mkId => $cplIds) {
-            foreach ((array) $cplIds as $cplId) {
-                $kurikulum->pivotCplMk()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'cpl_id' => $cplId,
-                    'mk_id' => $mkId,
-                ]);
-            }
-        }
-
-        // === Pivot CPMK <-> MK ===
-        foreach ($this->form['cpmk_mk'] as $cpmkId => $mkIds) {
-            foreach ((array) $mkIds as $mkId) {
-                $kurikulum->pivotCpmkMk()->create([
-                    'kurikulum_id' => $kurikulumId,
-                    'cpmk_id' => $cpmkId,
-                    'mk_id' => $mkId,
-                ]);
-            }
-        }
-
-        // === Pivot CPL <-> BK <-> MK ===
-        foreach ($this->form['cpl_bk_mk'] as $bkId => $cplArr) {
-            foreach ($cplArr as $cplId => $mkIds) {
-                foreach ((array) $mkIds as $mkId) {
-                    $kurikulum->pivotCplBkMk()->create([
-                        'kurikulum_id' => $kurikulumId,
-                        'cpl_id' => $cplId,
-                        'bk_id' => $bkId,
-                        'mk_id' => $mkId,
-                    ]);
+                // Metadata Kurikulum
+                $dataMetaDataKurikulum = [
+                    'prodi_id' => $this->form['programStudis'][0] ?? null,
+                    'name' => $this->form['name'],
+                    'year' => $this->form['year'],
+                    'version' => $this->form['version'],
+                    'type' => $this->form['type'],
+                    'status' => $this->form['status'],
+                    'created_by' => $this->form['created_by'],
+                ];
+                if ($this->selectedId) {
+                    $metaDataKur = Kurikulum::find($this->selectedId);
+                    $metaDataKur->update($dataMetaDataKurikulum);
+                    $this->selectedId = $metaDataKur->id;
+                } else {
+                    $metaDataKur = Kurikulum::create($dataMetaDataKurikulum);
+                    $this->selectedId = $metaDataKur->id;
                 }
-            }
-        }
+                $notify['description'] = "Data metadata berhasil disimpan.";
+                break;
+            case 1:
+                $dataPivotCplPl = $this->buildPivotData(
+                    $this->form['cpl_pl'],
+                    [
+                        'level1' => 'cpl_id',
+                        'level2' => 'pl_id',
+                    ],
+                    $kurikulumId
+                );
+                // dump($this->form['cpl_pl'],$dataPivotCplPl);
+                // dump($dataPivotCplPl);
+                $this->syncPivot(PivotPlCpl::class, $kurikulumId, $dataPivotCplPl);
+                $notify['description'] = "Data Relasi CPL PL berhasil disimpan.";
+                break;
+            case 2:
+                $dataPivotCplBk = $this->buildPivotData(
+                    $this->form['bk_cpl'],
+                    [
+                        'level1' => 'bk_id',
+                        'level2' => 'cpl_id',
+                    ],
+                    $kurikulumId
+                );
 
-        // === Pivot CPL <-> CPMK <-> MK ===
-        foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplArr) {
-            foreach ($cplArr as $cplId => $mkIds) {
-                foreach ((array) $mkIds as $mkId) {
-                    $kurikulum->pivotCplCpmkMk()->create([
-                        'kurikulum_id' => $kurikulumId,
-                        'cpl_id' => $cplId,
-                        'cpmk_id' => $cpmkId,
-                        'mk_id' => $mkId,
-                    ]);
+                $this->syncPivot(PivotCplBk::class, $kurikulumId, $dataPivotCplBk);
+                $notify['description'] = "Data Relasi CPL BK berhasil disimpan.";
+                break;
+            case 3:
+                $dataPivotBkMk = $this->buildPivotData(
+                    $this->form['bk_mk'],
+                    [
+                        'level1' => 'bk_id',
+                        'level2' => 'mk_id',
+                    ],
+                    $kurikulumId
+                );
+
+                $this->syncPivot(PivotBkMk::class, $kurikulumId, $dataPivotBkMk);
+                $notify['description'] = "Data Relasi BK MK berhasil disimpan.";
+
+                break;
+            case 4:
+                $dataPivotCpmkSubCpmk = $this->buildPivotData(
+                    $this->form['cpmk_subcpmk'],
+                    [
+                        'level1' => 'cpmk_id',
+                        'level2' => 'subcpmk_id',
+                    ],
+                    $kurikulumId
+                );
+
+                $this->syncPivot(PivotCpmkSubcpmk::class, $kurikulumId, $dataPivotCpmkSubCpmk);
+                $notify['description'] = "Data Relasi CPL BK berhasil disimpan.";
+
+                break;
+            case 5:
+                $dataPivotCplMk = $this->buildPivotData(
+                    $this->form['mk_cpl'],
+                    [
+                        'level1' => 'mk_id',
+                        'level2' => 'cpl_id',
+                    ],
+                    $kurikulumId
+                );
+
+                $this->syncPivot(PivotCplMk::class, $kurikulumId, $dataPivotCplMk);
+                $notify['description'] = "Data Relasi CPL MK berhasil disimpan.";
+
+                break;
+            case 6:
+                $dataPivotCpmkMk = $this->buildPivotData(
+                    $this->form['cpmk_mk'],
+                    [
+                        'level1' => 'cpmk_id',
+                        'level2' => 'mk_id',
+                    ],
+                    $kurikulumId
+                );
+
+                $this->syncPivot(PivotCpmkMk::class, $kurikulumId, $dataPivotCpmkMk);
+                $notify['description'] = "Data Relasi CPL MK berhasil disimpan.";
+                break;
+            case 7:
+
+                $dataPivotCplBkMk = [];
+                foreach ($this->form['cpl_bk_mk'] as $bkId => $cplArr) {
+                    foreach ($cplArr as $cplId => $mkIds) {
+                        foreach ((array) $mkIds as $mkId) {
+                            $dataPivotCplBkMk[] = [
+                                'kurikulum_id' => $kurikulumId,
+                                'cpl_id' => $cplId,
+                                'bk_id' => $bkId,
+                                'mk_id' => $mkId,
+                            ];
+                        }
+                    }
                 }
-            }
+                $this->syncPivot(PivotCplBkMk::class, $kurikulumId, $dataPivotCplBkMk);
+                $notify['description'] = "Data Relasi CPL BK MK berhasil disimpan.";
+
+                break;
+            case 8:
+                $dataPivotCplCpmkMk = [];
+                foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplArr) {
+                    foreach ($cplArr as $cplId => $mkIds) {
+                        foreach ((array) $mkIds as $mkId) {
+                            $dataPivotCplCpmkMk[] = [
+                                'kurikulum_id' => $kurikulumId,
+                                'cpl_id' => $cplId,
+                                'cpmk_id' => $cpmkId,
+                                'mk_id' => $mkId,
+                            ];
+                        }
+                    }
+                }
+
+                $this->syncPivot(PivotCplCpmkMk::class, $kurikulumId, $dataPivotCplCpmkMk);
+                $notify['description'] = "Data Relasi CPL CPLMK berhasil disimpan.";
+                break;
+            default:
+                $notify['description'] = "Terjadi Kesalahan! Data belum tersimpan.";
+                $notify['icon'] = 'error';
+                $notify['title'] = 'Terjadi Kesalahan!';
+
+                break;
         }
 
-        // Return object kurikulum baru/clone untuk preview
-        return $kurikulum;
+        $this->notification()->send([
+            'icon' => $notify['icon'],
+            'title' => $notify['title'],
+            'description' => $notify['description'],
+            'timeout' => 2500
+        ]);
     }
 
 
@@ -937,128 +1237,122 @@ class CreateUpdate extends BaseForm
     {
         // Validasi form metadata sebelum simpan
         $this->validate($this->rules());
+        $this->saveByNextTab($this->selectedId, $this->tabActive);
+ 
+        // $this->notification()->send([
+        //     'icon' => 'success',
+        //     'title' => 'Sukses!',
+        //     'description' => "Data berhasil" . $this->selectedId ? 'diupdate' : 'disimpan' . '.',
+        //     'timeout' => 2500
+        // ]);
 
-        // Jalankan beforeSave untuk menyimpan Kurikulum beserta semua pivot
-        $kurikulum = $this->beforeSaves(
-            $this->selectedId ? 'updated' : 'created',
-            $this->selectedId
-        );
-
-        // Optional: notifikasi berhasil
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Sukses!',
-            'description' => "Data berhasil" . $this->selectedId ? 'diupdate' : 'disimpan' . '.',
-            'timeout' => 2500
-        ]);
-
-        // Redirect ke list kurikulum atau detail kurikulum
+        // // Redirect ke list kurikulum atau detail kurikulum
         return redirect()->route('kurikulum.index');
     }
-    protected function cloneKurikulum(int $id): void
-    {
-        $old = Kurikulum::with([
-            'pivotPlCpl',
-            'pivotCplBk',
-            'pivotBkMk',
-            'pivotCpmkSubCpmk',
-            'pivotMkCpl',
-            'pivotCpmkMk',
-            'pivotCplBkMk',
-            'pivotCplCpmkMk',
-        ])->findOrFail($id);
+    // protected function cloneKurikulum(int $id): void
+    // {
+    //     $old = Kurikulum::with([
+    //         'pivotPlCpl',
+    //         'pivotCplBk',
+    //         'pivotBkMk',
+    //         'pivotCpmkSubCpmk',
+    //         'pivotMkCpl',
+    //         'pivotCpmkMk',
+    //         'pivotCplBkMk',
+    //         'pivotCplCpmkMk',
+    //     ])->findOrFail($id);
 
-        // 1️⃣ Buat kurikulum baru sebagai clone
-        $new = Kurikulum::create([
-            'prodi_id' => $old->prodi_id,
-            'name' => $old->name,
-            'year' => $old->year,
-            'version' => $old->version,
-            'parent_id' => $old->id, // parent = kurikulum lama
-            'type' => $old->type,
-            'status' => 'draft',
-            'created_by' => auth()->id(),
-        ]);
+    //     // 1️⃣ Buat kurikulum baru sebagai clone
+    //     $new = Kurikulum::create([
+    //         'prodi_id' => $old->prodi_id,
+    //         'name' => $old->name,
+    //         'year' => $old->year,
+    //         'version' => $old->version,
+    //         'parent_id' => $old->id, // parent = kurikulum lama
+    //         'type' => $old->type,
+    //         'status' => 'draft',
+    //         'created_by' => auth()->id(),
+    //     ]);
 
-        $kurikulumId = $new->id;
+    //     $kurikulumId = $new->id;
 
-        // 2️⃣ Copy pivot CPL ↔ PL
-        foreach ($old->pivotPlCpl as $pivot) {
-            $new->pivotPlCpl()->create([
-                'kurikulum_id' => $kurikulumId,
-                'pl_id' => $pivot->pl_id,
-                'cpl_id' => $pivot->cpl_id,
-            ]);
-        }
+    //     // 2️⃣ Copy pivot CPL ↔ PL
+    //     foreach ($old->pivotPlCpl as $pivot) {
+    //         $new->pivotPlCpl()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'pl_id' => $pivot->pl_id,
+    //             'cpl_id' => $pivot->cpl_id,
+    //         ]);
+    //     }
 
-        // 3️⃣ Copy pivot BK ↔ CPL
-        foreach ($old->pivotCplBk as $pivot) {
-            $new->pivotCplBk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'bk_id' => $pivot->bk_id,
-                'cpl_id' => $pivot->cpl_id,
-            ]);
-        }
+    //     // 3️⃣ Copy pivot BK ↔ CPL
+    //     foreach ($old->pivotCplBk as $pivot) {
+    //         $new->pivotCplBk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'bk_id' => $pivot->bk_id,
+    //             'cpl_id' => $pivot->cpl_id,
+    //         ]);
+    //     }
 
-        // 4️⃣ Copy pivot BK ↔ MK
-        foreach ($old->pivotBkMk as $pivot) {
-            $new->pivotBkMk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'bk_id' => $pivot->bk_id,
-                'mk_id' => $pivot->mk_id,
-            ]);
-        }
+    //     // 4️⃣ Copy pivot BK ↔ MK
+    //     foreach ($old->pivotBkMk as $pivot) {
+    //         $new->pivotBkMk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'bk_id' => $pivot->bk_id,
+    //             'mk_id' => $pivot->mk_id,
+    //         ]);
+    //     }
 
-        // 5️⃣ Copy pivot CPMK ↔ SubCPMK
-        foreach ($old->pivotCpmkSubCpmk as $pivot) {
-            $new->pivotCpmkSubCpmk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'cpmk_id' => $pivot->cpmk_id,
-                'subcpmk_id' => $pivot->subcpmk_id,
-            ]);
-        }
+    //     // 5️⃣ Copy pivot CPMK ↔ SubCPMK
+    //     foreach ($old->pivotCpmkSubCpmk as $pivot) {
+    //         $new->pivotCpmkSubCpmk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'cpmk_id' => $pivot->cpmk_id,
+    //             'subcpmk_id' => $pivot->subcpmk_id,
+    //         ]);
+    //     }
 
-        // 6️⃣ Copy pivot MK ↔ CPL
-        foreach ($old->pivotMkCpl as $pivot) {
-            $new->pivotMkCpl()->create([
-                'kurikulum_id' => $kurikulumId,
-                'mk_id' => $pivot->mk_id,
-                'cpl_id' => $pivot->cpl_id,
-            ]);
-        }
+    //     // 6️⃣ Copy pivot MK ↔ CPL
+    //     foreach ($old->pivotMkCpl as $pivot) {
+    //         $new->pivotMkCpl()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'mk_id' => $pivot->mk_id,
+    //             'cpl_id' => $pivot->cpl_id,
+    //         ]);
+    //     }
 
-        // 7️⃣ Copy pivot CPMK ↔ MK
-        foreach ($old->pivotCpmkMk as $pivot) {
-            $new->pivotCpmkMk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'cpmk_id' => $pivot->cpmk_id,
-                'mk_id' => $pivot->mk_id,
-            ]);
-        }
+    //     // 7️⃣ Copy pivot CPMK ↔ MK
+    //     foreach ($old->pivotCpmkMk as $pivot) {
+    //         $new->pivotCpmkMk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'cpmk_id' => $pivot->cpmk_id,
+    //             'mk_id' => $pivot->mk_id,
+    //         ]);
+    //     }
 
-        // 8️⃣ Copy pivot CPL ↔ BK ↔ MK
-        foreach ($old->pivotCplBkMk as $pivot) {
-            $new->pivotCplBkMk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'cpl_id' => $pivot->cpl_id,
-                'bk_id' => $pivot->bk_id,
-                'mk_id' => $pivot->mk_id,
-            ]);
-        }
+    //     // 8️⃣ Copy pivot CPL ↔ BK ↔ MK
+    //     foreach ($old->pivotCplBkMk as $pivot) {
+    //         $new->pivotCplBkMk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'cpl_id' => $pivot->cpl_id,
+    //             'bk_id' => $pivot->bk_id,
+    //             'mk_id' => $pivot->mk_id,
+    //         ]);
+    //     }
 
-        // 9️⃣ Copy pivot CPL ↔ CPMK ↔ MK
-        foreach ($old->pivotCplCpmkMk as $pivot) {
-            $new->pivotCplCpmkMk()->create([
-                'kurikulum_id' => $kurikulumId,
-                'cpl_id' => $pivot->cpl_id,
-                'cpmk_id' => $pivot->cpmk_id,
-                'mk_id' => $pivot->mk_id,
-            ]);
-        }
+    //     // 9️⃣ Copy pivot CPL ↔ CPMK ↔ MK
+    //     foreach ($old->pivotCplCpmkMk as $pivot) {
+    //         $new->pivotCplCpmkMk()->create([
+    //             'kurikulum_id' => $kurikulumId,
+    //             'cpl_id' => $pivot->cpl_id,
+    //             'cpmk_id' => $pivot->cpmk_id,
+    //             'mk_id' => $pivot->mk_id,
+    //         ]);
+    //     }
 
-        // 10️⃣ Bind ke form
-        $this->mount($kurikulumId);
-    }
+    //     // 10️⃣ Bind ke form
+    //     $this->mount($kurikulumId);
+    // }
 
 
     public function getProdiProperty()

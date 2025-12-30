@@ -77,24 +77,26 @@
              </li>
 
              <!-- DATA PEMETAAN -->
-             <li>
-                 <a href="{{ route('kurikulum.index') }}" wire:navigate
-                     class="@activeClass('kurikulum.index') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
+             @can('viewAny', App\Models\Kurikulum::class)
+                 <li>
+                     <a href="{{ route('kurikulum.index') }}" wire:navigate
+                         class="@activeClass('kurikulum.index') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
                     text-sm font-medium rounded-md transition-colors hover:text-neutral-900 
                     focus:outline-none bg-background hover:bg-neutral-100 group">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                         stroke="currentColor" class="size-5">
-                         <path stroke-linecap="round" stroke-linejoin="round"
-                             d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
-                     </svg>
-                     <span class="font-bold text-lg">Data Kurikulum</span>
-                 </a>
-             </li>
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                             stroke="currentColor" class="size-5">
+                             <path stroke-linecap="round" stroke-linejoin="round"
+                                 d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                         </svg>
+                         <span class="font-bold text-lg">Data Kurikulum</span>
+                     </a>
+                 </li>
+             @endcan
 
              <!-- RPS KONTRAK -->
              <li>
-                 <a href="#_"
-                     class="@activeClass('rps-kontrak-rs') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
+                 <a href="{{ route('perangkat-ajar.index') }}" wire:navigate
+                     class="@activeClass('perangkat-ajar.index') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
                     text-sm font-medium rounded-md transition-colors hover:text-neutral-900 
                     focus:outline-none bg-background hover:bg-neutral-100 group">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -102,11 +104,12 @@
                          <path stroke-linecap="round" stroke-linejoin="round"
                              d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                      </svg>
-                     <span class="font-bold text-lg">RPS Kontrak RS</span>
+                     <span class="font-bold text-lg">Perangkat Ajar</span>
                  </a>
              </li>
 
              <!-- USERS -->
+             @can('viewAny', [App\Models\User::class])
              <li>
                  <a href="{{ route('user.index') }}" wire:navigate
                      class="@activeClass('user.index') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
@@ -120,6 +123,7 @@
                      <span class="font-bold text-lg">Manage User</span>
                  </a>
              </li>
+             @endcan
 
          </ul>
      </div>

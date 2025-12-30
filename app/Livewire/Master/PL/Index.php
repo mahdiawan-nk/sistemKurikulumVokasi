@@ -2,193 +2,90 @@
 
 namespace App\Livewire\Master\PL;
 
-use Livewire\Component;
+use App\Livewire\Base\BaseTable;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use Livewire\WithPagination;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\On;
-use WireUi\Traits\WireUiActions;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\ProfileLulusan;
 use App\Models\ProgramStudi;
 use Faker\Factory as Faker;
-#[Title('Profile Lulusan')]
+
+
 #[Layout('components.layouts.sidebar')]
-class Index extends Component
+class Index extends BaseTable
 {
-    use WithPagination, WireUiActions;
-    public string $search = '';
-    public string $sortBy = 'id';
-    public string $sortDirection = 'desc';
-
-    protected array $allowedSorts = ['id', 'code', 'created_at'];
-    protected array $allowedDirections = ['asc', 'desc'];
-    public int $perPage = 10;
-    public bool $showTable = true;
-    public bool $showCreate = false;
-    public bool $showUpdate = false;
-
-    public ?int $selectedId = null;
-
-    public $filter = [
+    public string $title = 'Profile Lulusan';
+    public array $filter = [
         'prodi' => null,
     ];
+
+    public $form = [
+        'prodi' => [],
+        'jumlah' => 1
+    ];
+    protected static string $model = ProfileLulusan::class;
+    protected static string $view = 'livewire.master.p-l.index';
+
+    public array $relations = ['programStudis'];
+    protected array $filterable = [
+        'prodi' => ['type' => 'relation', 'relation' => 'programStudis', 'column' => 'program_studis.id'],
+    ];
+    protected array $searchable = [
+        'name',
+    ];
+
+    protected function beforeSetFilterProdi(): void
+    {
+        if (session('active_role') == 'Dosen') {
+
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+
+            $this->filter['prodi'] = $programStudi?->id;
+
+            return;
+        }
+    }
 
     public function getProgramStudisProperty()
     {
         return ProgramStudi::all();
     }
 
-
-    public function openCreate()
+    public function openSample()
     {
-        $this->resetSelected();
-        $this->showCreate = true;
-        $this->showTable = false;
-    }
-
-    public function openEdit($id)
-    {
-        $this->selectedId = $id;
-        $this->showUpdate = true;
-        $this->showTable = false;
-
-    }
-
-    #[On('cancel'), On('success-created'), On('success-updated')]
-    public function cancelForm(): void
-    {
-        $this->showCreate = false;
-        $this->showUpdate = false;
-        $this->showTable = true;
-
-        $this->resetSelected();
-        $this->reset();
-    }
-
-    public function openDelete($id)
-    {
-        $this->selectedId = $id;
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Data Profile Lulusan Akan Dihapus?',
-            'acceptLabel' => 'Yes, Delete it!',
-            'method' => 'confirmDelete',
-        ]);
-    }
-
-    public function items(): Builder
-    {
-        $orderBy = in_array($this->sortBy, $this->allowedSorts)
-            ? $this->sortBy
-            : 'id';
-
-        $direction = in_array($this->sortDirection, $this->allowedDirections)
-            ? $this->sortDirection
-            : 'desc';
-        return ProfileLulusan::query()
-            ->with('programStudis')
-            ->when($this->filter['prodi'], function ($query, $prodi) {
-                $query->whereHas(
-                    'programStudis',
-                    fn($q) =>
-                    $q->where('program_studis.id', $prodi)
-                );
-            })
-            ->when(
-                $this->search,
-                fn($query, $search) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                })
-            )
-            ->orderBy($orderBy, $direction);
-    }
-
-    protected function findItem(): ProfileLulusan
-    {
-        return ProfileLulusan::find($this->selectedId);
-    }
-
-    public function confirmDelete(): void
-    {
-        $this->findItem()->delete();
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Profile Lulusan Berhasil Dihapus',
-            'timeout' => 2500
-        ]);
-        $this->reset();
-    }
-
-    public function openSample(): void
-    {
-        $this->dialog()->confirm([
-            'title' => 'Are you Sure?',
-            'description' => 'Akan Generate Data Profile Lulusan? 5 data Per Program Studi',
-            'acceptLabel' => 'Yes, Generate it!',
-            'method' => 'confirmGenerate',
-        ]);
-    }
-
-    public function confirmGenerate(): void
-    {
-        $prodi = ProgramStudi::all();
-        $faker = Faker::create('id_ID');
-        foreach ($prodi as $item) {
-            foreach (range(1, 5) as $index) {
-                $pl = ProfileLulusan::create([
-                    'code' => 'PL-' . $index.'-' . $item->code,
-                    'name' => $faker->sentence(3),
-                    'description' => 'Profile Lulusan ' . $item->name . ' ' . $index.'-' . $faker->sentence(12),
-                ]);
-
-                $pl->programStudis()->attach($item->id);    
-            }
+        if ($this->filter['prodi'] == null) {
+            $this->form['prodi'] = ProgramStudi::pluck('id')->toArray();
+        } else {
+            $this->form['prodi'] = [$this->filter['prodi']];
         }
-        $this->notification()->send([
-            'icon' => 'success',
-            'title' => 'Success Notification!',
-            'description' => 'Data Profile Lulusan Berhasil Di Generate',
-            'timeout' => 2500
+        $this->modal()->open('sampleModal');
+    }
+
+    public function generateSample()
+    {
+        $this->validate([
+            'form.prodi' => 'required',
+            'form.jumlah' => 'required',
         ]);
-    }
-    public function updatingSearch()
-    {
-        $this->resetPage();
+
+        DB::transaction(function () {
+            $profiles = ProfileLulusan::factory()
+                ->count($this->form['jumlah'])
+                ->create();
+
+            $profiles->each(function ($profile) {
+                $profile->programStudis()->attach($this->form['prodi']);
+            });
+        });
+       
+        $this->modal()->close('sampleModal');
     }
 
-    public function updatingFilter()
-    {
-        $this->resetPage();
-    }
-
-    protected function resetSelected(): void
-    {
-        $this->selectedId = null;
-    }
-
-    public function clearFilter()
-    {
-        $this->filter = [
-            'prodi' => null,
-        ];
-        $this->resetPage();
-    }
-
-    public function clearSearch()
-    {
-        $this->search = '';
-        $this->resetPage();
-    }
-
-    public function render()
-    {
-        return view('livewire.master.p-l.index', [
-            'data' => $this->items()->paginate($this->perPage),
-        ]);
-    }
 }

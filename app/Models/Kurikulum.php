@@ -71,6 +71,28 @@ class Kurikulum extends Model
         return $this->hasMany(self::class, 'parent_id');
     }
 
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(KurikulumApproval::class);
+    }
+
+    public function bpmApproval()
+    {
+        return $this->hasOne(KurikulumApproval::class)
+            ->where('role', 'bpm');
+    }
+
+    public function wadirApproval()
+    {
+        return $this->hasOne(KurikulumApproval::class)
+            ->where('role', 'wadir');
+    }
+
+    public function direkturApproval()
+    {
+        return $this->hasOne(KurikulumApproval::class)
+            ->where('role', 'direktur');
+    }
     /*
     |--------------------------------------------------------------------------
     | PIVOT RELATIONS

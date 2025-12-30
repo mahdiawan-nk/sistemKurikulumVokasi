@@ -1,41 +1,4 @@
-<div>
-    {{-- <ol class="col-span-2 flex w-min flex-col gap-14" aria-label="registration progress">
-        <!-- completed step -->
-        <li class="text-sm" aria-label="create an account">
-            <div class="flex items-center gap-2">
-                <span
-                    class="flex size-6 items-center justify-center rounded-full border border-primary bg-primary text-on-primary dark:border-primary-dark dark:bg-primary-dark dark:text-on-primary-dark">
-                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="3" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    <span class="sr-only">completed</span>
-                </span>
-                <span class="hidden w-max text-primary dark:text-primary-dark sm:inline">Metadata Kurikulum</span>
-            </div>
-        </li>
-        <!-- current step -->
-        <li class="flex w-full items-center text-sm" aria-current="step" aria-label="choose a plan">
-            <div class="flex items-center gap-2">
-                <div class="relative">
-                    <div class="absolute bottom-8 left-3 h-10 w-0.5 bg-primary dark:bg-primary-dark"></div>
-                    <span
-                        class="flex size-6 shrink-0 items-center justify-center rounded-full border border-primary bg-primary font-bold text-on-primary outline outline-2 outline-offset-2 outline-primary dark:border-primary-dark dark:bg-primary-dark dark:text-on-primary-dark dark:outline-primary-dark">2</span>
-                </div>
-                <span class="hidden w-max font-bold text-primary dark:text-primary-dark sm:inline">Create A Plan Kurikulum</span>
-            </div>
-        </li>
-        <li class="flex w-full items-center text-sm" aria-label="checkout">
-            <div class="flex items-center gap-2">
-                <div class="relative">
-                    <div class="absolute bottom-8 left-3 h-10 w-0.5 bg-outline dark:bg-outline-dark"></div>
-                    <span
-                        class="flex size-6 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-alt font-medium text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark">3</span>
-                </div>
-                <span class="hidden w-max text-on-surface dark:text-on-surface-dark sm:inline">Preview</span>
-            </div>
-        </li>
-    </ol> --}}
+<div class="container py-4 mx-auto">
     <form wire:submit.prevent="saveKurikulum" class="gap-4 mt-2">
         <div class="w-full">
             <div class="flex flex-wrap border-b border-neutral-300 dark:border-neutral-700">
@@ -59,8 +22,8 @@
 
                         <div class="flex flex-col gap-3">
                             <flux:field>
-                                <flux:label>Program Studi</flux:label>
-                                <flux:select wire:model.change="form.programStudis">
+                                <flux:label>Program Studi </flux:label>
+                                <flux:select wire:model.change="form.programStudis" disabled>
                                     <flux:select.option value="">Pilih Program Studi</flux:select.option>
                                     @foreach ($this->getProdiProperty() as $pd)
                                         <flux:select.option value="{{ $pd->id }}">
@@ -89,8 +52,8 @@
                                 <flux:label>Type</flux:label>
                                 <flux:radio.group wire:model="form.type" variant="segmented">
                                     <flux:radio label="New" value="new" />
-                                    <flux:radio label="Revisi Minor" value="revisi_minor" />
-                                    <flux:radio label="Revisi Major" value="revisi_major" />
+                                    <flux:radio label="Revisi Minor" value="minor_revision" />
+                                    <flux:radio label="Revisi Major" value="major_revision" />
                                 </flux:radio.group>
                                 <flux:error name="form.type" />
                             </flux:field>
@@ -110,17 +73,17 @@
                                     <tr>
                                         <th scope="col" class="p-4 w-16">Code CPL</th>
                                         <th scope="col" class="p-4 w-96">Capaian Pembelajaran Lulusan</th>
-                                        @foreach ($this->getProfileLulusansProperty() as $pl)
+                                        @foreach ($listPl as $pl)
                                             <th scope="col" class="p-4 w-10">{{ $pl->code }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                    @foreach ($listCpl as $cpl)
                                         <tr>
                                             <td class="p-4">{{ $cpl->code }}</td>
                                             <td class="p-4">{{ $cpl->description }}</td>
-                                            @foreach ($this->getProfileLulusansProperty() as $pl)
+                                            @foreach ($listPl as $pl)
                                                 <td class="p-4">
                                                     <flux:field variant="inline">
                                                         <flux:checkbox
@@ -154,17 +117,17 @@
                                     <tr>
                                         <th scope="col" class="p-4 w-16">Code BK</th>
                                         <th scope="col" class="p-4 w-96">Bahan Kajian</th>
-                                        @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                        @foreach ($listCpl as $cpl)
                                             <th scope="col" class="p-4 w-10">{{ $cpl->code }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getBahanKajiansProperty() as $bk)
+                                    @foreach ($listBk as $bk)
                                         <tr>
                                             <td class="p-4">{{ $bk->code }}</td>
                                             <td class="p-4">{{ $bk->name }}</td>
-                                            @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                            @foreach ($listCpl as $cpl)
                                                 <td class="p-4">
                                                     <flux:field variant="inline">
                                                         <flux:checkbox
@@ -201,7 +164,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getBahanKajiansProperty() as $bk)
+                                    @foreach ($listBk as $bk)
                                         <tr>
                                             <td class="p-4">{{ $bk->code }}</td>
                                             <td class="p-4">{{ $bk->name }}</td>
@@ -271,7 +234,7 @@
                                         <th class="p-4 w-24 whitespace-nowrap">Code CPMK</th>
                                         <th class="p-4 w-96 whitespace-nowrap">CPMK</th>
 
-                                        @foreach ($this->getSubCapaianPembelajaranMatakuliahsProperty() as $subcpmk)
+                                        @foreach ($listSubCpmk as $subcpmk)
                                             <th class="p-4 w-14 text-center whitespace-nowrap">
                                                 {{ $subcpmk->code }}
                                             </th>
@@ -280,7 +243,7 @@
                                 </thead>
 
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getCapaianPembelajaranMatakuliahsProperty() as $cpmk)
+                                    @foreach ($listCpmk as $cpmk)
                                         <tr>
                                             <td class="p-4 whitespace-nowrap">
                                                 {{ $cpmk->code }}
@@ -290,7 +253,7 @@
                                                 {{ $cpmk->description }}
                                             </td>
 
-                                            @foreach ($this->getSubCapaianPembelajaranMatakuliahsProperty() as $subcpmk)
+                                            @foreach ($listSubCpmk as $subcpmk)
                                                 <td class="p-4 text-center">
                                                     <flux:field variant="inline">
                                                         <flux:checkbox
@@ -331,7 +294,7 @@
                                         <th class="p-4 w-24 whitespace-nowrap">Code MK</th>
                                         <th class="p-4 w-96 whitespace-nowrap">Mata Kuliah</th>
 
-                                        @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                        @foreach ($listCpl as $cpl)
                                             <th class="p-4 w-14 text-center whitespace-nowrap">
                                                 {{ $cpl->code }}
                                             </th>
@@ -340,7 +303,7 @@
                                 </thead>
 
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getMatakuliahsProperty() as $mk)
+                                    @foreach ($listMk as $mk)
                                         <tr>
                                             <td class="p-4 whitespace-nowrap">
                                                 {{ $mk->code }}
@@ -349,7 +312,7 @@
                                                 {{ $mk->name }}
                                             </td>
 
-                                            @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                            @foreach ($listCpl as $cpl)
                                                 <td class="p-4 text-center">
                                                     <flux:field variant="inline">
                                                         <flux:checkbox
@@ -388,19 +351,19 @@
                    dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
                                     <tr>
                                         <th class="p-4 w-24 whitespace-nowrap">Code CPMK</th>
-                                        <th class="p-4 min-w-[28rem]">Capaian Pembelajaran Matakuliah</th>
+                                        <th class="p-4 w-6 ">Capaian Pembelajaran Matakuliah</th>
                                         <th class="p-4 w-56 whitespace-nowrap">Mata Kuliah</th>
                                     </tr>
                                 </thead>
 
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getCapaianPembelajaranMatakuliahsProperty() as $cpmk)
+                                    @foreach ($listCpmk as $cpmk)
                                         <tr class="align-top">
                                             <td class="p-4 font-medium whitespace-nowrap">
                                                 {{ $cpmk->code }}
                                             </td>
 
-                                            <td class="p-4 text-sm leading-relaxed">
+                                            <td class="p-4 text-sm ">
                                                 {{ $cpmk->description }}
                                             </td>
 
@@ -464,16 +427,16 @@
                                     class="border-b border-neutral-300 bg-neutral-50 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
                                     <tr>
                                         <th scope="col" class="p-4 w-16">Code BK</th>
-                                        @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                        @foreach ($listCpl as $cpl)
                                             <th scope="col" class="p-4 w-10">{{ $cpl->code }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getBahanKajiansProperty() as $bk)
+                                    @foreach ($listBk as $bk)
                                         <tr>
                                             <td class="p-4">{{ $bk->code }}</td>
-                                            @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                            @foreach ($listCpl as $cpl)
                                                 <td class="p-4 align-top">
                                                     <div class="flex flex-col gap-2">
 
@@ -537,16 +500,16 @@
                                     class="border-b border-neutral-300 bg-neutral-50 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
                                     <tr>
                                         <th scope="col" class="p-4 w-16">Code CPL</th>
-                                        @foreach ($this->getCapaianPembelajaranMatakuliahsProperty() as $cpmk)
+                                        @foreach ($listCpmk as $cpmk)
                                             <th scope="col" class="p-4 w-10">{{ $cpmk->code }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($this->getCapaianPembelajaranLulusansProperty() as $cpl)
+                                    @foreach ($listCpl as $cpl)
                                         <tr>
                                             <td class="p-4">{{ $cpl->code }}</td>
-                                            @foreach ($this->getCapaianPembelajaranMatakuliahsProperty() as $cpmk)
+                                            @foreach ($listCpmk as $cpmk)
                                                 <td class="p-4 align-top">
                                                     <div class="flex flex-col gap-2">
 
@@ -607,8 +570,8 @@
 
             {{-- Next / Submit --}}
             @if ($tabActive < $maxTab)
-                <flux:button type="button" variant="primary" wire:click="nextStep">
-                    Selanjutnya
+                <flux:button type="button" variant="primary" wire:click="confirmNextStep">
+                   Simpan dan Selanjutnya
                 </flux:button>
             @else
                 <flux:button type="submit" variant="primary">
@@ -657,7 +620,7 @@
                     </p>
 
                     <div class="mt-4 space-y-2">
-                        @foreach ($this->getMaktulSelectProperty() as $mk)
+                        @foreach ($listMkOption as $mk)
                             <div class="py-3">
                                 @if (filled($tempSelectCplBkMK['bk']['id']) && filled($tempSelectCplBkMK['cpl']['id']))
                                     <flux:checkbox.group label="{{ $mk['name'] }}">
@@ -732,7 +695,7 @@
                     </p>
 
                     <div class="mt-4 space-y-2">
-                        @foreach ($this->getMaktulSelectProperty() as $mk)
+                        @foreach ($listMkOption as $mk)
                             <div class="py-3">
                                 @if (filled($tempSelectCplCpmkMK['cpmk']['id']) && filled($tempSelectCplCpmkMK['cpl']['id']))
                                     <flux:checkbox.group label="{{ $mk['name'] }}">
@@ -770,10 +733,10 @@
     </div>
     <div x-data="{ modalIsOpen: $wire.entangle('showModalBkMK') }">
         <div x-cloak x-show="modalIsOpen" x-transition.opacity.duration.200ms x-trap.inert.noscroll="modalIsOpen"
-            x-on:keydown.esc.window="modalIsOpen = false" class="fixed inset-0 z-40 bg-black/30 " role="dialog"
+            x-on:keydown.esc.window="modalIsOpen = true" class="fixed inset-0 z-40 bg-black/30 " role="dialog"
             aria-modal="true">
             <!-- Click Outside -->
-            <div class="absolute inset-0" x-on:click="modalIsOpen = false"></div>
+            <div class="absolute inset-0" x-on:click="modalIsOpen = true"></div>
 
             <!-- Slideover Panel -->
             <div x-show="modalIsOpen" x-transition:enter="transform transition ease-out duration-300"
@@ -802,7 +765,7 @@
 
                     <div class="mt-4 space-y-2">
                         @if (filled($tempSelectBkMK['bk']['id']))
-                            @foreach ($this->getMaktulSelectProperty() as $mk)
+                            @foreach ($listMkOption as $mk)
                                 <div class="py-2">
 
                                     <flux:checkbox.group label="{{ $mk['name'] }}" class="space-y-2">
@@ -890,7 +853,7 @@
                     </div>
                     <div class="mt-4 space-y-2">
                         @if (filled($tempSelectCpmkMK['cpmk']['id']))
-                            @foreach ($this->getMaktulSelectProperty() as $mk)
+                            @foreach ($listMkOption as $mk)
                                 <div class="py-2">
                                     <flux:checkbox.group label="{{ $mk['name'] }}">
                                         @foreach ($mk['options'] as $opt)

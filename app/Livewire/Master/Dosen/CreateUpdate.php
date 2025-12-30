@@ -66,14 +66,23 @@ class CreateUpdate extends BaseForm
 
             if ($action === 'updated') {
                 $user = $item->users()->first();
-
+                // dump($user);
                 // Guard: jika belum ada user terkait
-                if ($user) {
-                    $user->update([
+                // if ($user) {
+                //     $user->update([
+                //         'name' => $item->name,
+                //         'email' => $item->email,
+                //     ]);
+                // } else {
+                $user = User::firstOrCreate(
+                    ['email' => $item->email],
+                    [
                         'name' => $item->name,
-                        'email' => $item->email,
-                    ]);
-                }
+                        'password' => Hash::make('12345678'),
+                    ]
+                );
+                $item->users()->syncWithoutDetaching($user->id);
+                // }
                 $user->roles()->sync(4);
             }
 
