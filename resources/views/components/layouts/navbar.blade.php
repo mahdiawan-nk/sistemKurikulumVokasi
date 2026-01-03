@@ -96,7 +96,7 @@
              <!-- RPS KONTRAK -->
              <li>
                  <a href="{{ route('perangkat-ajar.index') }}" wire:navigate
-                     class="@activeClass('perangkat-ajar.index') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
+                     class="@activeClass('perangkat-ajar.*') inline-flex gap-2 items-center px-4 py-2 w-full md:w-max h-10 
                     text-sm font-medium rounded-md transition-colors hover:text-neutral-900 
                     focus:outline-none bg-background hover:bg-neutral-100 group">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

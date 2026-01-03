@@ -95,6 +95,14 @@
                         'models' => App\Models\KontrakKuliah::class,
                         'block' => [],
                     ],
+                    [
+                        'name' => 'Rencana Pembelajaran',
+                        'url' => route('perangkat-ajar.rps.index'),
+                        'active' => request()->routeIs('perangkat-ajar.rps.*'),
+                        'gate' => 'viewAny',
+                        'models' => App\Models\KontrakKuliah::class,
+                        'block' => [],
+                    ],
                 ];
             @endphp
             <!-- sidebar links  -->

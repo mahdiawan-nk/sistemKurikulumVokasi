@@ -41,4 +41,6 @@ class CapaianPembelajaranLulusan extends Model
         )->using(TxCplProdi::class)
             ->withTimestamps();
     }
+
+
 }

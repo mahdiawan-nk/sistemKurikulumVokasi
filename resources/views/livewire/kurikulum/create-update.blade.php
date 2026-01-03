@@ -3,7 +3,7 @@
         <div class="w-full">
             <div class="flex flex-wrap border-b border-neutral-300 dark:border-neutral-700">
                 @foreach ($tabName as $key => $label)
-                    <button type="button" disabled
+                    <button type="button" wire:click="settabActive({{ $key }})"
                         class="px-4 py-2 text-sm font-medium border-b-2 -mb-px
         {{ $tabActive === $key
             ? 'border-black text-black dark:border-white dark:text-white'
@@ -350,27 +350,36 @@
                    bg-neutral-50 text-sm text-neutral-900
                    dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
                                     <tr>
-                                        <th class="p-4 w-24 whitespace-nowrap">Code CPMK</th>
-                                        <th class="p-4 w-6 ">Capaian Pembelajaran Matakuliah</th>
-                                        <th class="p-4 w-56 whitespace-nowrap">Mata Kuliah</th>
+                                        <th class="p-4 w-14 whitespace-nowrap">Code MK</th>
+                                        <th class="p-4 w-26 ">Matakuliah</th>
+                                        @foreach ($listCpmk as $cpmk)
+                                            <th class="p-4 w-16 whitespace-nowrap">{{ $cpmk->code }}</th>
+                                        @endforeach
                                     </tr>
                                 </thead>
 
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
-                                    @foreach ($listCpmk as $cpmk)
+                                    @foreach ($listMk as $mk)
                                         <tr class="align-top">
                                             <td class="p-4 font-medium whitespace-nowrap">
-                                                {{ $cpmk->code }}
+                                                {{ $mk->code }}
                                             </td>
 
                                             <td class="p-4 text-sm ">
-                                                {{ $cpmk->description }}
+                                                {{ $mk->name }}
                                             </td>
-
-                                            <td class="p-4">
+                                            @foreach ($listCpmk as $cpmk)
+                                                <td class="p-4 text-center">
+                                                    <flux:checkbox
+                                                        id="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}"
+                                                        wire:model.defer="form.cpmk_mk.{{ $mk->id }}"
+                                                        value="{{ $cpmk->id }}"
+                                                        wire:key="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}" />
+                                                </td>
+                                            @endforeach
+                                            {{-- <td class="p-4">
                                                 <div class="flex flex-col gap-2">
 
-                                                    {{-- Selected MK --}}
                                                     @if (!empty($setTempSelectCpmkMK[$cpmk->id]['code']))
                                                         <div class="flex flex-wrap gap-1">
                                                             @foreach (collect($setTempSelectCpmkMK[$cpmk->id]['code'])->take(3) as $code)
@@ -383,7 +392,6 @@
                                                                 </span>
                                                             @endforeach
 
-                                                            {{-- +N indicator --}}
                                                             @if (count($setTempSelectCpmkMK[$cpmk->id]['code']) > 3)
                                                                 <span
                                                                     class="text-xs text-neutral-500 dark:text-neutral-400">
@@ -397,7 +405,6 @@
                                                         </span>
                                                     @endif
 
-                                                    {{-- Action --}}
                                                     <div>
                                                         <flux:button icon="plus" size="xs" variant="ghost"
                                                             wire:click="openAddRelation('cpmk_mk',{{ $cpmk->id }})">
@@ -405,7 +412,7 @@
                                                         </flux:button>
                                                     </div>
                                                 </div>
-                                            </td>
+                                            </td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -493,7 +500,7 @@
                         <x-card.title class="dark:text-white">Matriks CPL - CPMK - MK</x-card.title>
                     </x-card.header>
                     <x-card.content>
-                        <div
+                        {{-- <div
                             class="overflow-hidden w-full overflow-x-auto rounded-sm border border-neutral-300 dark:border-neutral-700">
                             <table class="w-full text-left text-sm text-neutral-600 dark:text-neutral-300">
                                 <thead
@@ -513,7 +520,6 @@
                                                 <td class="p-4 align-top">
                                                     <div class="flex flex-col gap-2">
 
-                                                        {{-- MK Selected --}}
                                                         @if (!empty($setTempSelectCplCpmkMK[$cpmk->id][$cpl->id]['code']))
                                                             <div class="flex flex-wrap gap-1">
                                                                 @foreach (collect($setTempSelectCplCpmkMK[$cpmk->id][$cpl->id]['code'])->take(3) as $code)
@@ -526,7 +532,6 @@
                                                                     </span>
                                                                 @endforeach
 
-                                                                {{-- +N indicator --}}
                                                                 @if (count($setTempSelectCplCpmkMK[$cpmk->id][$cpl->id]['code']) > 3)
                                                                     <span
                                                                         class="text-xs text-neutral-500 dark:text-neutral-400">
@@ -535,13 +540,11 @@
                                                                 @endif
                                                             </div>
                                                         @else
-                                                            {{-- Empty State --}}
                                                             <span class="text-xs italic text-neutral-400">
                                                                 Belum ada MK
                                                             </span>
                                                         @endif
 
-                                                        {{-- Action --}}
                                                         <div>
                                                             <flux:button icon="plus" size="xs"
                                                                 variant="ghost"
@@ -556,6 +559,99 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div> --}}
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            @foreach ($listMk as $mk)
+                                @php
+                                    $cpls = $mk->MkCpl->pluck('cpl')->unique('id');
+                                @endphp
+
+                                <!-- CARD MK -->
+                                <div
+                                    class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+
+                                    <!-- HEADER -->
+                                    <div class="px-5 py-4 border-b dark:border-gray-700">
+                                        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">
+                                            {{ $mk->code }}
+                                        </h2>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $mk->name }}
+                                        </p>
+                                    </div>
+
+                                    <!-- TABLE -->
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full text-sm border-collapse">
+                                            <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0 z-10">
+                                                <tr>
+                                                    <th
+                                                        class="border border-gray-200 dark:border-gray-700 px-3 py-2 text-left text-gray-700 dark:text-gray-200">
+                                                        CPMK
+                                                    </th>
+                                                    @foreach ($cpls as $cpl)
+                                                        <th
+                                                            class="border border-gray-200 dark:border-gray-700 px-2 py-2 text-center text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                                                            {{ $cpl->code }}
+                                                        </th>
+                                                    @endforeach
+                                                </tr>
+                                            </thead>
+
+                                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                                @forelse ($mk->MkCpmk->unique('cpmk_id') as $pivotCpmk)
+                                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-3 py-2 font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                                            {{ $pivotCpmk->cpmk->code }}
+                                                        </td>
+
+                                                        @foreach ($cpls as $cpl)
+                                                            <td class="border border-gray-200 dark:border-gray-700">
+                                                                <div class="flex items-center justify-center py-2">
+                                                                    <flux:checkbox
+                                                                        id="mk-{{ $mk->id }}-cpmk-{{ $pivotCpmk->cpmk->id }}-cpl-{{ $cpl->id }}"
+                                                                        wire:model.defer="form.cpl_cpmk_mk.{{ $mk->id }}.{{ $pivotCpmk->cpmk->id }}"
+                                                                        value="{{ $cpl->id }}"
+                                                                        wire:key="mk-{{ $mk->id }}-cpmk-{{ $pivotCpmk->cpmk->id }}-cpl-{{ $cpl->id }}" />
+                                                                </div>
+                                                            </td>
+                                                        @endforeach
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="{{ $cpls->count() + 1 }}"
+                                                            class="border border-gray-200 dark:border-gray-700 bg-yellow-50 dark:bg-yellow-900/30 px-4 py-6 text-center">
+                                                            <div class="flex flex-col items-center gap-2">
+                                                                <svg class="w-8 h-8 text-yellow-500 dark:text-yellow-400"
+                                                                    fill="none" stroke="currentColor"
+                                                                    stroke-width="1.5" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round"
+                                                                        d="M12 9v3.75m0 3.75h.008M10.29 3.86l-7.4 12.8A1.5 1.5 0 004.17 19h15.66a1.5 1.5 0 001.28-2.34l-7.4-12.8a1.5 1.5 0 00-2.42 0z" />
+                                                                </svg>
+
+                                                                <p
+                                                                    class="font-semibold text-yellow-700 dark:text-yellow-300">
+                                                                    Belum ada CPMK
+                                                                </p>
+
+                                                                <p
+                                                                    class="text-sm text-yellow-600 dark:text-yellow-400">
+                                                                    Silakan tambahkan CPMK terlebih dahulu untuk
+                                                                    matakuliah ini
+                                                                </p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            @endforeach
                         </div>
 
                     </x-card.content>
@@ -571,7 +667,7 @@
             {{-- Next / Submit --}}
             @if ($tabActive < $maxTab)
                 <flux:button type="button" variant="primary" wire:click="confirmNextStep">
-                   Simpan dan Selanjutnya
+                    Simpan dan Selanjutnya
                 </flux:button>
             @else
                 <flux:button type="submit" variant="primary">

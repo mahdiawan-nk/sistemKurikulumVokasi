@@ -12,6 +12,7 @@ class KontrakKuliah extends Model
         'matakuliah_id',
         'prodi_id',
         'dosen_id',
+        'tahun_akademik',
         'kelas',
         'total_jam',
         'tujuan_pembelajaran',

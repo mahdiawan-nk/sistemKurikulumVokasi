@@ -7,6 +7,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use App\Models\KontrakKuliah;
 use App\Models\ProgramStudi;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 #[Layout('components.layouts.sidebar')]
 class Index extends BaseTable
@@ -41,7 +42,7 @@ class Index extends BaseTable
     /**
      * daftar kolom pencarian
      */
-    protected array $searchable = ['name', 'code'];
+    protected array $searchable = ['tahun_akademik', 'kelas'];
 
     /**
      * nilai default filter
@@ -55,6 +56,13 @@ class Index extends BaseTable
         return ProgramStudi::query()
             ->orderBy('name')
             ->get(['id', 'name', 'jenjang']);
+    }
+
+    public function previewPdf($id)
+    {
+        $data = KontrakKuliah::with('programStudis')->find($id);
+
+        $this->redirect(route('pdf-preview', ['id' => $data->id]));
     }
 
 }

@@ -53,6 +53,11 @@
                 <flux:label class="w-1/8">Dosen Pengampu</flux:label>
                 <flux:input readonly variant="filled" wire:model="detailDosen" />
             </div>
+            <div class="flex gap-3">
+                <flux:label class="w-1/8">Tahun Akademik</flux:label>
+                <flux:input variant="filled" wire:model="tahun_akademik" />
+                <flux:error name="tahun_akademik" />
+            </div>
         </div>
     </x-card>
     <x-card title="Detail Kontrak Kuliah">

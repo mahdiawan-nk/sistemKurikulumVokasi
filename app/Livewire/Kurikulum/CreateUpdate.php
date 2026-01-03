@@ -29,11 +29,11 @@ class CreateUpdate extends BaseForm
     public array $tabName = [
         0 => 'Metadata Kurikulum',
         1 => 'CPL - PL',
-        2 => 'BK - CPL',
+        2 => 'CPL - BK',
         3 => 'BK - MK',
         4 => 'CPMK - SubCPMK',
-        5 => 'MK - CPL',
-        6 => 'CPMK - MK',
+        5 => 'CPL - MK',
+        6 => 'MK - CPMK',
         7 => 'CPL - BK - MK',
         8 => 'CPL - CPMK - MK',
     ];
@@ -117,10 +117,17 @@ class CreateUpdate extends BaseForm
         $this->selectedId = $id;
         $this->setFormProdi();
         if ($id != null) {
-            $this->openEdits($this->selectedId, 0);
+            $this->openEdits($this->selectedId, $this->tabActive);
+            $this->loadDataMaster();
         }
     }
 
+    public function settabActive($tabActive)
+    {
+        $this->tabActive = $tabActive;
+        $this->loadDataMaster();
+        $this->openEdits($this->selectedId, $this->tabActive);
+    }
     protected function setFormProdi()
     {
         // Child override dapat memanggil parent::setFilterProdi() jika ingin extend
@@ -272,8 +279,12 @@ class CreateUpdate extends BaseForm
                 $this->listMk = $this->getMatakuliahsProperty();
                 $this->listMkOption = $this->getMaktulSelectProperty();
 
-                foreach ($this->listCpmk as $cpmk) {
-                    $this->form['cpmk_mk'][$cpmk->id] = [];
+                // foreach ($this->listCpmk as $cpmk) {
+                //     $this->form['cpmk_mk'][$cpmk->id] = [];
+                // }
+
+                foreach ($this->listMk as $mk) {
+                    $this->form['cpmk_mk'][$mk->id] = [];
                 }
                 break;
             case 7:
@@ -283,25 +294,73 @@ class CreateUpdate extends BaseForm
                 $this->listMk = $this->getMatakuliahsProperty();
                 $this->listMkOption = $this->getMaktulSelectProperty();
 
-                foreach ($this->listBk as $b) {
-                    foreach ($this->listCpl as $cpl) {
-                        $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
+                // foreach ($this->listBk as $b) {
+                //     foreach ($this->listCpl as $cpl) {
+                //         $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
 
-                    }
-                }
+                //     }
+                // }
                 break;
             case 8:
                 $this->form['cpl_cpmk_mk'] = [];
-                $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
-                $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
-                $this->listMk = $this->getMatakuliahsProperty();
-                $this->listMkOption = $this->getMaktulSelectProperty();
+                // $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
+                // $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
+                // $this->listMk = $this->getMatakuliahsProperty();
+                // $this->listMkOption = $this->getMaktulSelectProperty();
 
-                foreach ($this->listCpl as $cpl) {
-                    foreach ($this->listCpmk as $item) {
-                        $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
+                $matakuliahs = Matakuliah::with([
+                    'MkCpmk' => function ($q) {
+                        $q->where('kurikulum_id', $this->selectedId)
+                            ->with('cpmk');
+                    },
+                    'MkCpl' => function ($q) {
+                        $q->where('kurikulum_id', $this->selectedId)
+                            ->with('cpl');
+                    }
+                ])
+                    ->get();
+
+                $matakuliahs->each(function ($mk) {
+                    $mk->cplMap = $mk->MkCpl->keyBy('cpl_id');
+                });
+
+                $matakuliahs->each(function ($mk) {
+                    $mk->cpmkMap = $mk->MkCpmk->keyBy('cpmk_id');
+                });
+
+                foreach ($matakuliahs as $mk) {
+                    $this->form['cpl_cpmk_mk'][$mk->id] = [];
+                    foreach ($mk->cpmkMap as $cpmk) {
+                        $this->form['cpl_cpmk_mk'][$mk->id][$cpmk->cpmk_id] = [];
                     }
                 }
+
+                // foreach($mks as $mk) {
+                //     // dump($mk->cpmks);
+                //     foreach($mk->cpmks as $cpmk) {
+                //     }
+                // }
+                $this->listMk = $matakuliahs;
+                foreach ($matakuliahs as $mk) {
+                    $cpls = $mk->MkCpl->pluck('cpl')->unique('id');
+                    // dump($mk->MkCpmk);
+                }
+                // dump($this->listMk);
+                // $this->listCpl = $cpls;
+                // foreach ($this->listMk as $mk) {
+                //     // dump($mk->cpmks);
+                // }
+                // foreach ($cpls as $cpl) {
+                //     $this->form['cpl_cpmk_mk'][$cpl->id] = [];
+                //     foreach ($mks as $mk) {
+                //         $this->form['cpl_cpmk_mk'][$cpl->id][$mk->id] = [];
+                //     }
+                // }
+                // foreach ($this->listCpl as $cpl) {
+                //     foreach ($this->listCpmk as $item) {
+                //         $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
+                //     }
+                // }
                 break;
             default:
                 break;
@@ -828,25 +887,48 @@ class CreateUpdate extends BaseForm
             case 6:
                 $this->tabActive = 6;
                 foreach ($kurikulum->pivotCpmkMk as $pivot) {
-                    $this->form['cpmk_mk'][$pivot->cpmk_id][] = $pivot->mk_id;
+                    $this->form['cpmk_mk'][$pivot->mk_id][] = $pivot->cpmk_id;
                 }
-                foreach ($this->form['cpmk_mk'] as $cpmkId => $mkIds) {
+                // foreach ($this->form['cpmk_mk'] as $cpmkId => $mkIds) {
 
-                    $mkIds = array_values(array_unique($mkIds));
+                //     $mkIds = array_values(array_unique($mkIds));
 
-                    $mks = $this->getMatakuliahsProperty()
-                        ->whereIn('id', $mkIds);
+                //     $mks = $this->getMatakuliahsProperty()
+                //         ->whereIn('id', $mkIds);
 
-                    $this->setTempSelectCpmkMK[$cpmkId] = [
-                        'id' => $mkIds,
-                        'code' => $mks->pluck('code')->values()->toArray(),
-                    ];
-                }
+                //     $this->setTempSelectCpmkMK[$cpmkId] = [
+                //         'id' => $mkIds,
+                //         'code' => $mks->pluck('code')->values()->toArray(),
+                //     ];
+                // }
                 break;
             case 7:
                 $this->tabActive = 7;
-                foreach ($kurikulum->pivotCplBkMk as $pivot) {
-                    $this->form['cpl_bk_mk'][$pivot->bk_id][$pivot->cpl_id][] = $pivot->mk_id;
+
+                // foreach ($kurikulum->pivotCplBkMk as $pivot) {
+                //     $this->form['cpl_bk_mk'][$pivot->bk_id][$pivot->cpl_id][] = $pivot->mk_id;
+                // }
+                $kurikulumId = $id;
+
+                $data = PivotBkMk::query()
+                    ->where('pivot_bk_mks.kurikulum_id', $kurikulumId)
+                    ->join('pivot_cpl_bks', function ($join) use ($kurikulumId) {
+                        $join->on('pivot_bk_mks.bk_id', '=', 'pivot_cpl_bks.bk_id')
+                            ->where('pivot_cpl_bks.kurikulum_id', $kurikulumId);
+                    })
+                    ->with([
+                        'mk:id,code,name',
+                        'bk:id,code,name',
+                    ])
+                    ->select(
+                        'pivot_cpl_bks.cpl_id',
+                        'pivot_bk_mks.bk_id',
+                        'pivot_bk_mks.mk_id'
+                    )
+                    ->get();
+
+                foreach ($data as $item) {
+                    $this->form['cpl_bk_mk'][$item->bk_id][$item->cpl_id][] = $item->mk_id;
                 }
 
                 foreach ($this->form['cpl_bk_mk'] as $bkId => $cplIds) {
@@ -867,6 +949,26 @@ class CreateUpdate extends BaseForm
                 break;
             case 8:
                 $this->tabActive = 8;
+                // $data = PivotCpmkMk::query()
+                //     ->where('pivot_cpmk_mks.kurikulum_id', $id)
+                //     ->join('pivot_cpl_mks', function ($join) use ($id) {
+                //         $join->on('pivot_cpmk_mks.mk_id', '=', 'pivot_cpl_mks.mk_id')
+                //             ->where('pivot_cpl_mks.kurikulum_id', $id);
+                //     })
+                //     ->with([
+                //         'mk:id,code,name',
+                //         'cpmk:id,code',
+                //     ])
+                //     ->select(
+                //         'pivot_cpmk_mks.mk_id',
+                //         'pivot_cpmk_mks.cpmk_id',
+                //         'pivot_cpl_mks.cpl_id'
+                //     )
+                //     ->get();
+                // foreach ($data as $pivot) {
+                //     $this->form['cpl_cpmk_mk'][$pivot->cpmk_id][$pivot->cpl_id][] = $pivot->mk_id;
+                // }
+
                 $kurikulum->pivotCplCpmkMk()
                     ->where('kurikulum_id', $id)
                     ->get()
@@ -1055,12 +1157,11 @@ class CreateUpdate extends BaseForm
                 $dataPivotCpmkMk = $this->buildPivotData(
                     $this->form['cpmk_mk'],
                     [
-                        'level1' => 'cpmk_id',
-                        'level2' => 'mk_id',
+                        'level1' => 'mk_id',
+                        'level2' => 'cpmk_id',
                     ],
                     $kurikulumId
                 );
-
                 $this->syncPivot(PivotCpmkMk::class, $kurikulumId, $dataPivotCpmkMk);
                 $notify['description'] = "Data Relasi CPL MK berhasil disimpan.";
                 break;
@@ -1238,7 +1339,7 @@ class CreateUpdate extends BaseForm
         // Validasi form metadata sebelum simpan
         $this->validate($this->rules());
         $this->saveByNextTab($this->selectedId, $this->tabActive);
- 
+
         // $this->notification()->send([
         //     'icon' => 'success',
         //     'title' => 'Sukses!',

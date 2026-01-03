@@ -14,7 +14,7 @@ class CreateUpdate extends Component
     public ?int $selectedId = null;
     public int $matakuliahId, $dosenId, $totalJam;
 
-    public string $kelas, $deskripsiMk, $tujuan_pembelajaran, $strategi_perkuliahan, $materi_pembelajaran, $kriteria_penilaian, $tata_tertib;
+    public string $kelas, $deskripsiMk, $tujuan_pembelajaran, $strategi_perkuliahan, $materi_pembelajaran, $kriteria_penilaian, $tata_tertib, $tahun_akademik;
 
     public $mk_cpmk = '';
 
@@ -37,6 +37,10 @@ class CreateUpdate extends Component
 
     public function mount(int $id = null)
     {
+        $this->selectedId = $id;
+        if ($id != null) {
+            $this->openEdit($id);
+        }
         $this->detailDosen = auth()->user()->name;
         $this->setUpProdi();
         $this->setListMk();
@@ -147,6 +151,7 @@ class CreateUpdate extends Component
                 'materi_pembelajaran' => 'required',
                 'kriteria_penilaian' => 'required',
                 'tata_tertib' => 'required',
+                'tahun_akademik' => 'required'
             ],
             [
                 'matakuliahId.required' => 'Matakuliah wajib di pilih',
@@ -157,11 +162,13 @@ class CreateUpdate extends Component
                 'materi_pembelajaran.required' => 'Materi Pembelajaran wajib diisi',
                 'kriteria_penilaian.required' => 'Kriteria Penilaian wajib diisi',
                 'tata_tertib.required' => 'Tata Tertib wajib diisi',
+                'tahun_akademik.required' => 'Tahun Akademik wajib diisi'
             ]
         );
         $dataKontrak = [
             'dosen_id' => auth()->user()->dosens()->first()->id,
             'matakuliah_id' => $this->matakuliahId,
+            'tahun_akademik' => $this->tahun_akademik,
             'kelas' => $this->kelas,
             'total_jam' => $this->totalJam,
             'tujuan_pembelajaran' => $this->tujuan_pembelajaran,
@@ -171,10 +178,34 @@ class CreateUpdate extends Component
             'tata_tertib' => $this->tata_tertib
         ];
         // dump($dataKontrak);
+        if ($this->selectedId != null) {
+            KontrakKuliah::find($this->selectedId)->update($dataKontrak);
+        } else {
 
-        KontrakKuliah::create($dataKontrak);
+            KontrakKuliah::create($dataKontrak);
+        }
 
-        $this->redirect(route('perangkat-ajar.kontrak-kuliah.index'),navigate: true);
+        $this->redirect(route('perangkat-ajar.kontrak-kuliah.index'), navigate: true);
+    }
+
+    public function openEdit($id)
+    {
+        $getKontrakKuliah = KontrakKuliah::find($id);
+        $this->setDetailMk($getKontrakKuliah->matakuliah_id);
+
+        $this->detailDosen = $getKontrakKuliah->dosen->name;
+
+        $this->matakuliahId = $getKontrakKuliah->matakuliah_id;
+        $this->dosenId = $getKontrakKuliah->dosen_id;
+        $this->kelas = $getKontrakKuliah->kelas;
+        $this->totalJam = $getKontrakKuliah->total_jam;
+        $this->tujuan_pembelajaran = $getKontrakKuliah->tujuan_pembelajaran;
+        $this->strategi_perkuliahan = $getKontrakKuliah->strategi_perkuliahan;
+        $this->materi_pembelajaran = $getKontrakKuliah->materi_pembelajaran;
+        $this->kriteria_penilaian = $getKontrakKuliah->kriteria_penilaian;
+        $this->tata_tertib = $getKontrakKuliah->tata_tertib;
+        $this->tahun_akademik = $getKontrakKuliah->tahun_akademik;
+
     }
     public function render()
     {

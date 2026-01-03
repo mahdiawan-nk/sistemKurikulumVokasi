@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\PdfController;
 use App\Livewire\Users\Inlistusers;
 use App\Livewire\Master\PL\Index as PL;
 use App\Livewire\Master\Cpl\Index as Cpl;
@@ -18,6 +19,7 @@ use App\Livewire\Kurikulum\MatriksData;
 use App\Livewire\PerangkatAjar\Index as PerangkatAjar;
 use App\Livewire\PerangkatAjar\KontrakKuliah\Index as KontrakKuliah;
 use App\Livewire\PerangkatAjar\KontrakKuliah\CreateUpdate as KontrakKuliahCreateUpdate;
+use App\Livewire\PerangkatAjar\Rps\Index as Rps;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -63,7 +65,11 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('kontrak-kuliah', KontrakKuliah::class)->name('kontrak-kuliah.index');
             Volt::route('kontrak-kuliah/create/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.create');
             Volt::route('kontrak-kuliah/update/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.update');
+
+            Volt::route('rps', Rps::class)->name('rps.index');
         });
+    
+    Route::get('view-pdf', [PdfController::class, 'preview'])->name('pdf.preview');
 
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');
