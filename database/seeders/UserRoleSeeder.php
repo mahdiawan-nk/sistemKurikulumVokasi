@@ -49,5 +49,6 @@ class UserRoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ];
+        UserRole::insert($data);
     }
 }
