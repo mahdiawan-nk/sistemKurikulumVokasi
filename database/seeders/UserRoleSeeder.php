@@ -14,7 +14,17 @@ class UserRoleSeeder extends Seeder
     {
         $data = [
             [
-                'name' => 'Admin',
+                'name' => 'Superadmin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Akademik',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Kaprodi',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -24,7 +34,17 @@ class UserRoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Mahasiswa',
+                'name' => 'BPM',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'WADIR 1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Direktur',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
