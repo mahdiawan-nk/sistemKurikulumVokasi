@@ -20,6 +20,7 @@ class KontrakKuliah extends Model
         'materi_pembelajaran',
         'kriteria_penilaian',
         'tata_tertib',
+        'status'
     ];
 
     /**
@@ -44,5 +45,10 @@ class KontrakKuliah extends Model
     public function programStudis()
     {
         return $this->belongsTo(ProgramStudi::class, 'prodi_id');
+    }
+
+    public function kontrakApprovals()
+    {
+        return $this->hasMany(KontrakKuliahApproval::class);
     }
 }

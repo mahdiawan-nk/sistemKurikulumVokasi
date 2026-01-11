@@ -30,7 +30,15 @@
                 @endcan
             </x-ui.table.header>
             @php
-                $columnHeaders = ['No', 'Program Studi', 'Matakuliah', 'Tahun AKD', 'Dosen Pengampu', 'Created At'];
+                $columnHeaders = [
+                    'No',
+                    'Program Studi',
+                    'Matakuliah',
+                    'Tahun AKD',
+                    'Dosen Pengampu',
+                    'Status',
+                    'Created At',
+                ];
                 $show = Gate::any(
                     ['update', 'delete'],
                     [App\Models\CapaianPembelajaranLulusan::class, ['Kaprodi', 'Dosen']],
@@ -57,21 +65,32 @@
                         </td>
                         <td class="p-4">{{ $row->tahun_akademik }}</td>
                         <td class="p-4">{{ $row->dosen->name }}</td>
+                        <td class="p-4">{{ $row->status }}</td>
                         <td class="p-4">{{ $row->created_at }}</td>
                         <x-ui.table.action :row="$row">
-                            @can('update', [App\Models\KontrakKuliah::class, [ 'Dosen']])
-                                <flux:button variant="primary" icon="pencil" href="{{ route('perangkat-ajar.kontrak-kuliah.update',['id'=>$row->id]) }}"
-                                    size="sm" wire:navigate/>
+                            @can('update', [App\Models\KontrakKuliah::class,$row, ['Dosen']])
+                                @if ($row->status == 'draft' || $row->status == 'rejected')
+                                    <flux:button variant="primary" icon="pencil"
+                                        href="{{ route('perangkat-ajar.kontrak-kuliah.update', ['id' => $row->id]) }}"
+                                        size="sm" wire:navigate />
+                                @endif
                             @endcan
-                            @can('delete', [App\Models\KontrakKuliah::class, [ 'Dosen']])
-                                <flux:button variant="danger" icon="trash" wire:click="openDelete({{ $row->id }})" size="sm" />
+                            @can('delete', [App\Models\KontrakKuliah::class,$row, ['Dosen']])
+                                @if ($row->status == 'draft')
+                                    <flux:button variant="danger" icon="trash" label="{{ $row->status }}"
+                                        wire:click="openDelete({{ $row->id }})" size="sm" />
+                                @endif
                             @endcan
-                                {{-- <flux:button variant="danger" icon="trash" :href="route('pdf.preview')" size="sm" /> --}}
+                            @can('viewAny', [App\Models\KontrakKuliah::class])
+                                <flux:button variant="primary" icon="eye"
+                                    :href="route('perangkat-ajar.kontrak-kuliah.view', ['id' => $row->id])"
+                                    size="sm" />
+                            @endcan
                         </x-ui.table.action>
                     </x-ui.table.row>
                 @empty
                     <x-ui.table.empty :searchValue="$search" :FilterValue="$this->filterValue('prodi')" stateFilter="clearFilter"
-                        stateSearch="clearSearch" stateAdd="openCreate" colspan="6"/>
+                        stateSearch="clearSearch" stateAdd="openCreate" colspan="6" />
                 @endforelse
             </x-ui.table.index>
             <x-ui.table.pagination :paginator="$data" />

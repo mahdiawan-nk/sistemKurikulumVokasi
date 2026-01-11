@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800">
+<body class="w-full max-w-full xl:max-w-[2560px] min-h-screen bg-white dark:bg-zinc-900">
     {{-- Dialog global --}}
     <x-dialog z-index="z-50" align="center" width="w-md" />
 
@@ -28,7 +28,8 @@
     <x-layouts.navbar />
 
     {{-- Main content --}}
-    <main class="flex-1">
+    <main class="flex-1 bg-gray-50 dark:bg-zinc-900">
+        
         {{ $slot }}
     </main>
 

@@ -19,7 +19,11 @@ use App\Livewire\Kurikulum\MatriksData;
 use App\Livewire\PerangkatAjar\Index as PerangkatAjar;
 use App\Livewire\PerangkatAjar\KontrakKuliah\Index as KontrakKuliah;
 use App\Livewire\PerangkatAjar\KontrakKuliah\CreateUpdate as KontrakKuliahCreateUpdate;
+use App\Livewire\PerangkatAjar\KontrakKuliah\View as KontrakKuliahView;
 use App\Livewire\PerangkatAjar\Rps\Index as Rps;
+use App\Livewire\PerangkatAjar\Rps\Create as RpsCreate;
+use App\Livewire\PerangkatAjar\Rps\Update as RpsUpdate;
+use App\Livewire\PerangkatAjar\Rps\View as RpsView;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -65,8 +69,12 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('kontrak-kuliah', KontrakKuliah::class)->name('kontrak-kuliah.index');
             Volt::route('kontrak-kuliah/create/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.create');
             Volt::route('kontrak-kuliah/update/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.update');
+            Volt::route('kontrak-kuliah/view/{id?}', KontrakKuliahView::class)->name('kontrak-kuliah.view');
 
             Volt::route('rps', Rps::class)->name('rps.index');
+            Volt::route('rps/create/{id?}', RpsCreate::class)->name('rps.create');
+            Volt::route('rps/update/{id?}', RpsUpdate::class)->name('rps.update');
+            Volt::route('rps/view/{id?}', RpsView::class)->name('rps.view');
         });
     
     Route::get('view-pdf', [PdfController::class, 'preview'])->name('pdf.preview');

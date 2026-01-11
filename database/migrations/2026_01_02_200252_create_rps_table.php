@@ -12,31 +12,17 @@ return new class extends Migration {
     {
         Schema::create('rps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('program_studi_id')
-                ->constrained('program_studis')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-            $table->foreignId('mata_kuliah_id')
-                ->constrained('matakuliahs')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
-            $table->string('academic_year', 9);
-            $table->string('class', 10);
-            $table->integer('revision')->default(1);
-
-            $table->foreignId('compiled_by')
-                ->constrained('dosens')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
+            $table->foreignId('matakuliah_id')->constrained('matakuliahs')->cascadeOnDelete();
+            $table->foreignId('program_studi_id')->constrained('program_studis')->cascadeOnDelete();
+            $table->string('class')->nullable();
+            $table->foreignId('dosen_id')->constrained('dosens')->cascadeOnDelete();
+            $table->string('academic_year');
+            $table->integer('revision')->default(0);
             $table->json('learning_method')->nullable();
-            $table->json('learning_experience')->nullable();
-
-            $table->integer('total_minutes');
+            $table->text('learning_experience')->nullable();
             $table->timestamps();
 
-            $table->unique(['program_studi_id', 'mata_kuliah_id', 'academic_year', 'class']);
+            $table->index(['matakuliah_id', 'program_studi_id', 'class', 'academic_year']);
         });
     }
 

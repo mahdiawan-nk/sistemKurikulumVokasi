@@ -79,4 +79,14 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function dosenName()
+    {
+        return $this->dosens()->first()->name;
+    }
+
+    public function dosenId()
+    {
+        return $this->dosens()->first()->id;
+    }
+
 }

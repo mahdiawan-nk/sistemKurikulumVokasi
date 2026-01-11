@@ -2,84 +2,55 @@
 
 namespace App\Livewire\PerangkatAjar\Rps;
 
-use Livewire\Component;
+use App\Livewire\Base\BaseTable;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use App\Models\Matakuliah;
-use App\Models\Kurikulum;
-use App\Models\CapaianPembelajaranLulusan as Cpl;
-use App\Models\CapaianPembelajaranMatakuliah as Cpmk;
+use App\Models\ProgramStudi;
+use App\Models\Rps;
 
-#[Title('Data Kurikulum')]
+
 #[Layout('components.layouts.sidebar')]
-class Index extends Component
+class Index extends BaseTable
 {
 
-    public $listMk = [];
+    public string $title = 'RPS';
+    protected static string $model = Rps::class;
+    protected static string $view = 'livewire.perangkat-ajar.rps.index';
 
-    public $activeProdi = null;
-
-    public $form = [
-        'matakuliah_id' => null
+    protected array $filterable = [
+        'prodi' => [
+            'type' => 'column',
+            'column' => 'program_studi_id'
+        ]
     ];
 
-    public $indentitasMk = [];
-    public $dataKurikulum = [];
-
-    public $matriksCplCpmk = [
-        'cpl' => [],
-        'cpmk' => []
+    protected array $searchable = [
+        'matakuliah' => [
+            'type' => 'relation',
+            'relation' => 'matakuliah',
+            'column' => 'matakuliah.name'
+        ],
+        'dosen' => [
+            'type' => 'relation',
+            'relation' => 'dosen',
+            'column' => 'dosen.name'
+        ]
     ];
 
-    public function mount()
-    {
-        $this->setFilterProdi();
-        $this->listMk = $this->getListMatakuliah()->get();
+    public array $filter = [
+        'prodi' => null,
+    ];
 
+    public function getProdiOptionsProperty()
+    {
+        return ProgramStudi::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'jenjang']);
     }
 
-    protected function getListMatakuliah()
+    protected function beforeSetFilterProdi(): void
     {
-
-        return Matakuliah::query()
-            ->with(['programStudis', 'MkCpmk.cpmk', 'MkCpl.cpl'])
-            ->when($this->activeProdi, function ($q) {
-                $q->whereHas('programStudis', function ($q) {
-                    $q->where('program_studis.id', $this->activeProdi);
-                });
-            });
-    }
-
-    protected function getKurikulumPublishedByMk($matakuliahId)
-    {
-        return Kurikulum::query()
-            ->where('status', 'published')
-            ->when(
-                $this->activeProdi,
-                fn($q) =>
-                $q->whereHas(
-                    'programStudis',
-                    fn($q) =>
-                    $q->where('program_studis.id', $this->activeProdi)
-                )
-            )
-            ->whereHas(
-                'pivotCpmkMk',
-                fn($q) =>
-                $q->where('pivot_cpmk_mks.mk_id', $matakuliahId)
-            )
-            ->with([
-                'pivotCpmkMk' => fn($q) =>
-                    $q->where('mk_id', $matakuliahId)->with('cpmk'),
-                'pivotCplMk' => fn($q) =>
-                    $q->where('mk_id', $matakuliahId)->with('cpl'),
-            ])
-            ->first();
-    }
-
-    protected function setFilterProdi(): void
-    {
-        if (in_array(session('active_role'), ['Dosen', 'Kaprodi'])) {
+        if (session('active_role') == 'Dosen') {
 
             $programStudi = auth()->user()
                     ?->dosens()
@@ -88,26 +59,18 @@ class Index extends Component
                     ?->programStudis()
                     ?->first();
 
-            $this->activeProdi = $programStudi?->id;
+            $this->filter['prodi'] = $programStudi?->id;
+
             return;
         }
+    }
 
-    }
-    protected function matriksCplCpmk($mkId)
+    protected function beforeDelete()
     {
-        
-    }
-    public function updating($key, $value)
-    {
-        // $this->form[$key] = $value;
-        if ($key == 'form.matakuliah_id') {
-            $this->indentitasMk = $this->getListMatakuliah()->find($value);
-            $this->dataKurikulum = $this->getKurikulumPublishedByMk($value);
-            $this->matriksCplCpmk($value);
-        }
-    }
-    public function render()
-    {
-        return view('livewire.perangkat-ajar.rps.index');
+        $rpsData = Rps::find($this->selectedId);
+        $rpsData->pertemuans()->delete();
+        $rpsData->referensis()->delete();
+        $rpsData->penilaians()->delete();
+        $rpsData->rpsApprovals()->delete();
     }
 }

@@ -65,3 +65,16 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+.nav-item {
+    @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+           text-gray-700 dark:text-gray-300
+           hover:bg-gray-100 dark:hover:bg-gray-800
+           hover:text-gray-900 dark:hover:text-white
+           transition;
+}
+
+.nav-item.active {
+    @apply bg-indigo-50 text-indigo-700
+           dark:bg-indigo-900/40 dark:text-indigo-400;
+}

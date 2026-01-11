@@ -1,91 +1,205 @@
 <x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full container mx-auto flex-1 flex-col gap-4 rounded-xl p-10" x-data="realTime()">
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <div
-                class="w-full bg-[#6366f1] rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10">
-                <!-- LEFT TEXT -->
+    <div class="container mx-auto px-4 py-6" x-data="realTime()">
+        <div
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 
+           dark:from-indigo-700 dark:to-indigo-600 p-8 md:p-12 shadow-lg">
+
+            <div class="flex flex-col md:flex-row items-center gap-10">
+                <!-- TEXT -->
                 <div class="flex-1 text-white">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">
-                        Selamat Datang
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">
+                        Dashboard e-Kurikulum
                     </h1>
 
-                    <p class="text-white/90 max-w-md leading-relaxed mb-6">
-                        Do consectetur proident proident id eiusmod deserunt consequat pariatur ad ex velit
-                        do Lorem reprehenderit.
+                    <p class="text-white/90 max-w-xl leading-relaxed mb-6">
+                        Sistem terintegrasi untuk pengelolaan kurikulum berbasis OBE,
+                        mencakup program studi, RPS, kontrak kuliah, dan capaian pembelajaran
+                        secara digital dan terstandar.
                     </p>
 
-                    <!-- Date Badge -->
-                    <div class="inline-block bg-white text-gray-600 text-sm px-4 py-2 rounded-lg shadow-sm"
+                    <div class="inline-flex items-center gap-2 bg-white/90 text-gray-700 
+                       dark:bg-gray-900 dark:text-gray-200
+                       text-sm px-4 py-2 rounded-lg shadow"
                         x-text="time">
-                        15 November 2025 12 : 04 : 00
                     </div>
                 </div>
 
                 <!-- LOGO -->
                 <div class="flex-1 flex justify-center md:justify-end">
-                    <img src="{{ asset('images/logo-polkam.png') }}" class="w-60 md:w-80 drop-shadow-lg"
-                        alt="Logo Politeknik Kampar" />
+                    <img src="{{ asset('images/logo-polkam.png') }}" class="w-44 md:w-60 drop-shadow-xl"
+                        alt="Logo Politeknik Kampar">
                 </div>
             </div>
         </div>
-        <div class="grid auto-rows-min gap-4 md:grid-cols-4">
-            <div
-                class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 relative">
-                <!-- Konten kiri -->
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Jumlah Dosen</p>
-                    <p class="text-3xl font-semibold text-gray-900 mt-1">300</p>
-                </div>
-                <!-- Ikon kanan -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-16">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-                </svg>
-            </div>
-            <div
-                class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 relative">
-                <!-- Konten kiri -->
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Program Studi</p>
-                    <p class="text-3xl font-semibold text-gray-900 mt-1">300</p>
-                </div>
-                <!-- Ikon kanan -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-16">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
-                </svg>
-            </div>
-            <div
-                class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 relative">
-                <!-- Konten kiri -->
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Kontrak Kuliah</p>
-                    <p class="text-3xl font-semibold text-gray-900 mt-1">300</p>
-                </div>
-                <!-- Ikon kanan -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-16">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
-                </svg>
-            </div>
-            <div
-                class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 relative">
-                <!-- Konten kiri -->
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">RPS</p>
-                    <p class="text-3xl font-semibold text-gray-900 mt-1">300</p>
-                </div>
-                <!-- Ikon kanan -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-16">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
-                </svg>
 
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+            <div
+                class="flex items-center gap-4 rounded-xl bg-white dark:bg-gray-800
+           border border-gray-100 dark:border-gray-700
+           p-5 shadow-sm hover:shadow-md transition">
+
+                <!-- Icon -->
+                <div
+                    class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg
+               bg-indigo-50 text-indigo-600
+               dark:bg-indigo-900/40 dark:text-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 6.75a3 3 0 1 1-6 0
+                     3 3 0 0 1 6 0ZM19.5 20.25
+                     a7.5 7.5 0 0 0-15 0" />
+                    </svg>
+                </div>
+
+                <!-- Text -->
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Jumlah Dosen
+                    </p>
+                    <p class="text-3xl font-semibold text-gray-900 dark:text-white">
+                        300
+                    </p>
+                </div>
             </div>
+
+            <div
+                class="flex items-center gap-4 rounded-xl bg-white dark:bg-gray-800
+           border border-gray-100 dark:border-gray-700
+           p-5 shadow-sm hover:shadow-md transition">
+
+                <!-- Icon -->
+                <div
+                    class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg
+               bg-indigo-50 text-indigo-600
+               dark:bg-indigo-900/40 dark:text-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-7">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4.5 19.5h15M4.5 15h15M6 10.5h12M7.5 6h9" />
+                    </svg>
+                </div>
+
+                <!-- Text -->
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Program Studi
+                    </p>
+                    <p class="text-3xl font-semibold text-gray-900 dark:text-white">
+                        12
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="flex flex-col justify-between rounded-xl bg-white dark:bg-gray-800
+           border border-gray-100 dark:border-gray-700 p-5 shadow-sm
+           hover:shadow-md transition">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Total Kurikulum
+                        </p>
+                        <p class="text-3xl font-semibold text-gray-900 dark:text-white mt-1">
+                            300
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-lg
+                   bg-indigo-50 text-indigo-600
+                   dark:bg-indigo-900/40 dark:text-indigo-400">
+                        <!-- Icon Kurikulum -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-7">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.966 8.966 0 0 0 3 3.75v14.25A8.966 8.966 0 0 1 12 20.25
+                         a8.966 8.966 0 0 1 9-2.25V3.75
+                         A8.966 8.966 0 0 0 12 6.042Z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Status Breakdown -->
+                <div class="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-2 text-sm">
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-300">
+                            Published
+                        </span>
+                        <span class="font-medium text-green-600 dark:text-green-400">
+                            180
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-300">
+                            Draft
+                        </span>
+                        <span class="font-medium text-yellow-600 dark:text-yellow-400">
+                            90
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-300">
+                            Archived
+                        </span>
+                        <span class="font-medium text-gray-500 dark:text-gray-400">
+                            30
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div
+                class="flex flex-col justify-between rounded-xl bg-white dark:bg-gray-800
+           border border-gray-100 dark:border-gray-700 p-5 shadow-sm
+           hover:shadow-md transition">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Total Perangkat Ajar
+                        </p>
+                        <p class="text-3xl font-semibold text-gray-900 dark:text-white mt-1">
+                            300
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-lg
+                   bg-indigo-50 text-indigo-600
+                   dark:bg-indigo-900/40 dark:text-indigo-400">
+                        <!-- Icon Academic -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-7">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.966 8.966 0 0 0 3 3.75v14.25A8.966 8.966 0 0 1 12 20.25
+                         a8.966 8.966 0 0 1 9-2.25V3.75
+                         A8.966 8.966 0 0 0 12 6.042Z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-2 text-sm">
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>RPS</span>
+                        <span class="font-medium">120</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Kontrak Kuliah</span>
+                        <span class="font-medium">100</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>RS</span>
+                        <span class="font-medium">80</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     <script>

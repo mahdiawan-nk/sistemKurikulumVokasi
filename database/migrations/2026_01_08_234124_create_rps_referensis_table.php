@@ -10,16 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('rps_meetings', function (Blueprint $table) {
+        Schema::create('rps_referensis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rps_id')
-                ->constrained('rps')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
-            $table->integer('meeting_number');
-            $table->json('content')->nullable();
+            $table->foreignId('rps_id')->constrained('rps')->cascadeOnDelete();
+            $table->enum('jenis', ['utama', 'pendukung']);
+            $table->text('deskripsi');
             $table->timestamps();
+
+            $table->index(['rps_id', 'jenis']);
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('rps_meetings');
+        Schema::dropIfExists('rps_referensis');
     }
 };

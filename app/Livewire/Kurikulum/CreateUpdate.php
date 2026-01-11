@@ -973,23 +973,25 @@ class CreateUpdate extends BaseForm
                     ->where('kurikulum_id', $id)
                     ->get()
                     ->each(function ($pivot) {
-                        $this->form['cpl_cpmk_mk'][$pivot->cpmk_id][$pivot->cpl_id][] = $pivot->mk_id;
+                        $this->form['cpl_cpmk_mk'][$pivot->mk_id][$pivot->cpmk_id][] = $pivot->cpl_id;
                     });
-                foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplIds) {
 
-                    foreach ($cplIds as $cplId => $mkIds) {
+                // dump($this->form['cpl_cpmk_mk']);
+                // foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplIds) {
 
-                        $mkIds = array_values(array_unique($mkIds));
+                //     foreach ($cplIds as $cplId => $mkIds) {
 
-                        $mks = $this->getMatakuliahsProperty()
-                            ->whereIn('id', $mkIds);
+                //         $mkIds = array_values(array_unique($mkIds));
 
-                        $this->setTempSelectCplCpmkMK[$cpmkId][$cplId] = [
-                            'id' => $mkIds,
-                            'code' => $mks->pluck('code')->values()->toArray(),
-                        ];
-                    }
-                }
+                //         $mks = $this->getMatakuliahsProperty()
+                //             ->whereIn('id', $mkIds);
+
+                //         $this->setTempSelectCplCpmkMK[$cpmkId][$cplId] = [
+                //             'id' => $mkIds,
+                //             'code' => $mks->pluck('code')->values()->toArray(),
+                //         ];
+                //     }
+                // }
                 break;
             default:
                 $this->tabActive = 0;
@@ -1186,9 +1188,9 @@ class CreateUpdate extends BaseForm
                 break;
             case 8:
                 $dataPivotCplCpmkMk = [];
-                foreach ($this->form['cpl_cpmk_mk'] as $cpmkId => $cplArr) {
-                    foreach ($cplArr as $cplId => $mkIds) {
-                        foreach ((array) $mkIds as $mkId) {
+                foreach ($this->form['cpl_cpmk_mk'] as $mkId => $cpmkArr) {
+                    foreach ($cpmkArr as $cpmkId => $cplIds) {
+                        foreach ((array) $cplIds as $cplId) {
                             $dataPivotCplCpmkMk[] = [
                                 'kurikulum_id' => $kurikulumId,
                                 'cpl_id' => $cplId,
