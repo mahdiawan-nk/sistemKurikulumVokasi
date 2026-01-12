@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('version');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->enum('type', ['new', 'minor_revision', 'major_revision'])->default('new');
-            $table->enum('status', ['draft', 'submitted','approved_bpm','approved_wadir','published','archived'])->default('draft');
+            $table->enum('status', ['draft', 'submitted','approved_bpm','approved_wadir','approved_direktur','published','archived'])->default('draft');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 

@@ -61,7 +61,7 @@ class Index extends BaseTable
             return;
         }
         if(session('active_role') == 'BPM'){
-            $this->filter['status']= ['published','approved_direktur','archived'];
+            $this->filter['status']= ['published','approved_direktur','archived','submitted'];
             return;
         }
         if(session('active_role') == 'WADIR 1'){
@@ -69,7 +69,7 @@ class Index extends BaseTable
             return;
         }
         if(session('active_role') == 'Direktur'){
-            $this->filter['status']= ['published','approved_wadir','archived'];
+            $this->filter['status']= ['published','approved_wadir','archived','submitted'];
             return;
         }
     }

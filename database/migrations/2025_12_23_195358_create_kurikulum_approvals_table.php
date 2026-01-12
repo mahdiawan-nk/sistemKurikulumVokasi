@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->enum('role', [
                 'bpm',
                 'wadir',
+                'direktur',
             ]);
 
             $table->unsignedBigInteger('approved_by')->nullable();

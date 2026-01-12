@@ -107,6 +107,14 @@
                         'models' => App\Models\KontrakKuliah::class,
                         'block' => [],
                     ],
+                    [
+                        'name' => 'Realisasi Pembelajaran',
+                        'url' => route('perangkat-ajar.realisasi-ajar.index'),
+                        'active' => request()->routeIs('perangkat-ajar.realisasi-ajar.*'),
+                        'gate' => 'viewAny',
+                        'models' => App\Models\KontrakKuliah::class,
+                        'block' => [],
+                    ],
                 ];
             @endphp
 

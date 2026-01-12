@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->integer('revision')->default(0);
             $table->json('learning_method')->nullable();
             $table->text('learning_experience')->nullable();
+            $table->enum('status', ['draft', 'submitted', 'approved', 'rejected'])->default('draft');
             $table->timestamps();
 
             $table->index(['matakuliah_id', 'program_studi_id', 'class', 'academic_year']);

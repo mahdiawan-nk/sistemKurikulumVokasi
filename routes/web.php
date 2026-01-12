@@ -24,6 +24,10 @@ use App\Livewire\PerangkatAjar\Rps\Index as Rps;
 use App\Livewire\PerangkatAjar\Rps\Create as RpsCreate;
 use App\Livewire\PerangkatAjar\Rps\Update as RpsUpdate;
 use App\Livewire\PerangkatAjar\Rps\View as RpsView;
+use App\Livewire\PerangkatAjar\RealisasiAjar\Index as RealisasiAjar;
+use App\Livewire\PerangkatAjar\RealisasiAjar\Create as RealisasiAjarCreate;
+use App\Livewire\PerangkatAjar\RealisasiAjar\Update as RealisasiAjarUpdate;
+use App\Livewire\PerangkatAjar\RealisasiAjar\View as RealisasiAjarView;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -75,6 +79,11 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('rps/create/{id?}', RpsCreate::class)->name('rps.create');
             Volt::route('rps/update/{id?}', RpsUpdate::class)->name('rps.update');
             Volt::route('rps/view/{id?}', RpsView::class)->name('rps.view');
+
+            Volt::route('realisasi-ajar', RealisasiAjar::class)->name('realisasi-ajar.index');
+            Volt::route('realisasi-ajar/create/{id?}', RealisasiAjarCreate::class)->name('realisasi-ajar.create');
+            Volt::route('realisasi-ajar/update/{id?}', RealisasiAjarUpdate::class)->name('realisasi-ajar.update');
+            Volt::route('realisasi-ajar/view/{id?}', RealisasiAjarView::class)->name('realisasi-ajar.view');
         });
     
     Route::get('view-pdf', [PdfController::class, 'preview'])->name('pdf.preview');
