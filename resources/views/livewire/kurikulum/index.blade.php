@@ -76,9 +76,9 @@
                                     @php
                                         $direkturStatus = optional($row->direkturApproval)->status ?? 'Pending';
                                         $direkturColor =
-                                            optional($row->direkturApproval)->status == 'Approved'
+                                            optional($row->direkturApproval)->status == 'approved'
                                                 ? 'green'
-                                                : (optional($row->direkturApproval)->status == 'Rejected'
+                                                : (optional($row->direkturApproval)->status == 'rejected'
                                                     ? 'red'
                                                     : 'yellow');
                                     @endphp
@@ -90,9 +90,9 @@
                                     @php
                                         $bpmStatus = optional($row->bpmApproval)->status ?? 'Pending';
                                         $bpmColor =
-                                            optional($row->bpmApproval)->status == 'Approved'
+                                            optional($row->bpmApproval)->status == 'approved'
                                                 ? 'green'
-                                                : (optional($row->bpmApproval)->status == 'Rejected'
+                                                : (optional($row->bpmApproval)->status == 'rejected'
                                                     ? 'red'
                                                     : 'yellow');
                                     @endphp

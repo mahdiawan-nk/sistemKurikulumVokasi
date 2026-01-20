@@ -10,16 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class CreateUpdate extends BaseForm
 {
     protected array $relations = ['programStudis'];
-    protected $user;
-    public $isKaprodi = false;
 
-    public function boot()
-    {
-        $this->user = Auth::user();
-    }
+   
     public function mount($id = null)
     {
-        $this->isKaprodi();
         if ($id) {
             $this->openEdit($id);
         }

@@ -12,9 +12,10 @@
                     </h1>
 
                     <p class="text-white/90 max-w-xl leading-relaxed mb-6">
-                        Sistem terintegrasi untuk pengelolaan kurikulum berbasis OBE,
-                        mencakup program studi, RPS, kontrak kuliah, dan capaian pembelajaran
-                        secara digital dan terstandar.
+                        Terwujudnya Politeknik yang Unggul, Inovatif dan Terkemuka Berbasis Teknologi Terapan pada Tahun
+                        2032"
+
+
                     </p>
 
                     <div class="inline-flex items-center gap-2 bg-white/90 text-gray-700 
@@ -32,7 +33,8 @@
             </div>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
+        <livewire:widget.crad-statistik />
+        {{-- <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
             <div
                 class="flex items-center gap-4 rounded-xl bg-white dark:bg-gray-800
            border border-gray-100 dark:border-gray-700
@@ -200,7 +202,7 @@
                 </div>
             </div>
 
-        </div>
+        </div> --}}
     </div>
     <script>
         function realTime() {

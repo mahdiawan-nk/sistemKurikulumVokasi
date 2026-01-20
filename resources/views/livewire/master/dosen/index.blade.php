@@ -64,21 +64,15 @@
     @endif
 
 
-    @if ($showCreate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.dosen.create-update wire:key="create" />
-            </div>
-        </div>
-    @endif
+    <x-ui.pages.section-view>
+        @if ($showCreate)
+            <livewire:master.dosen.create-update wire:key="create" />
+        @endif
+        @if ($showUpdate)
+            <livewire:master.dosen.create-update wire:key="update-{{ $selectedId }}" :id="$selectedId" />
+        @endif
+    </x-ui.pages.section-view>
 
-    @if ($showUpdate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.dosen.create-update wire:key="update-{{ $selectedId }}" :id="$selectedId" />
-            </div>
-        </div>
-    @endif
     <x-modal-card name="simpleModal" title="Sync Data" persistent width="4xl" align="center">
 
         <div>

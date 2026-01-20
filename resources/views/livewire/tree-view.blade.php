@@ -1,4 +1,4 @@
-<div>
+<div class="w-full">
 
     <ul class="space-y-2 text-sm">
         @foreach ($tree as $node)

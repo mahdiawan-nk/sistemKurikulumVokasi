@@ -6,10 +6,12 @@ use Livewire\Component;
 use App\Models\ProgramStudi;
 use App\Models\ProfileLulusan as PL;
 use WireUi\Traits\WireUiActions;
-
+use Illuminate\Support\Facades\Auth;
 class Update extends Component
 {
     use WireUiActions;
+    protected $user;
+    public $isKaprodi = false;
     public string $code = '';
     public string $name = '';
     public string $description = '';
@@ -17,15 +19,29 @@ class Update extends Component
 
     public int $selectedId;
     public function mount($selectedId)
-    {   
+    {
         $this->selectedId = $selectedId;
         $pl = PL::find($selectedId);
         $this->code = $pl->code;
         $this->name = $pl->name;
         $this->description = $pl->description;
         $this->prodi_id = $pl->programStudis->pluck('id')->toArray();
+        $this->isKaprodi();
     }
+    protected function isKaprodi()
+    {
+        $isKaprodi = session('active_role') == 'Kaprodi';
 
+        if ($isKaprodi) {
+            $programStudi = $this->user
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+            $this->isKaprodi = true;
+        }
+    }
     public function getProdiProperty()
     {
         return ProgramStudi::all();

@@ -6,16 +6,18 @@
         <x-card.content>
             <form wire:submit.prevent="save">
                 <div class="flex flex-col gap-3">
-                    <flux:field>
-                        <flux:label>Program Studi</flux:label>
-                        <flux:select wire:model="prodi_id" placeholder="Pilih Program Studi">
-                            @foreach ($this->getProdiProperty() as $pd)
-                                <flux:select.option value="{{ $pd->id }}">{{ $pd->jenjang }}-{{ $pd->name }}
-                                </flux:select.option>
-                            @endforeach
-                        </flux:select>
-                        <flux:error name="prodi_id" />
-                    </flux:field>
+                    @if (!$isKaprodi)
+                        <flux:field>
+                            <flux:label>Program Studi</flux:label>
+                            <flux:select wire:model="prodi_id" placeholder="Pilih Program Studi">
+                                @foreach ($this->getProdiProperty() as $pd)
+                                    <flux:select.option value="{{ $pd->id }}">
+                                        {{ $pd->jenjang }}-{{ $pd->name }}</flux:select.option>
+                                @endforeach
+                            </flux:select>
+                            <flux:error name="prodi_id" />
+                        </flux:field>
+                    @endif
                     <flux:field>
                         <flux:label>Kode Profile Lulusan</flux:label>
                         <flux:input wire:model="code" type="text" />

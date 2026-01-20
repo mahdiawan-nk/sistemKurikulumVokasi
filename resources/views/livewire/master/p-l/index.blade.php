@@ -5,7 +5,7 @@
         <section>
             <x-ui.table.header title="Profile Lulusan" wire-search="search">
                 <x-slot name="filter">
-                    @can('filter', [\App\Models\ProfileLulusan::class, ['Kaprodi','Dosen']])
+                    @can('filter', [\App\Models\ProfileLulusan::class, ['Kaprodi', 'Dosen']])
                         <flux:dropdown>
                             <flux:button icon:trailing="chevron-down">Program Studi</flux:button>
 
@@ -55,22 +55,14 @@
         </section>
     @endif
 
+    <x-ui.pages.section-view>
+        @if ($showCreate)
+            <livewire:master.p-l.create wire:key="create" />
+        @endif
+        @if ($showUpdate)
+            <livewire:master.p-l.update wire:key="update-{{ $selectedId }}" :selectedId="$selectedId" />
+        @endif
+    </x-ui.pages.section-view>
 
-    @if ($showCreate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.p-l.create wire:key="create" />
-            </div>
-        </div>
-    @endif
-
-    @if ($showUpdate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.p-l.update wire:key="update-{{ $selectedId }}" :selectedId="$selectedId" />
-            </div>
-        </div>
-    @endif
-
-    <x-ui.forms.sample-data max="15" min="1"/>
+    <x-ui.forms.sample-data max="15" min="1" />
 </div>

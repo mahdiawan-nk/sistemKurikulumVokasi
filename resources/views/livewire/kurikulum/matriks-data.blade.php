@@ -37,7 +37,7 @@
         </div>
     </div>
     <div class="grid grid-cols-5 grid-rows-5 gap-4">
-        <div class="col-span-2">
+        <div class="col-span-1">
             <div class="w-full mx-auto">
                 <div
                     class="rounded-xl border border-neutral-200 dark:border-neutral-700
@@ -71,7 +71,7 @@
                     </div>
 
                     {{-- Body --}}
-                    <div class="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="px-6 py-5 grid grid-cols-2 md:grid-cols-2 gap-4 text-sm">
                         <div>
                             <p class="text-neutral-500 dark:text-neutral-400">Tahun</p>
                             <p class="font-medium text-neutral-900 dark:text-white">{{ $kurikulum->year }}</p>
@@ -273,7 +273,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-span-3 col-start-3">
+        <div class="col-span-4 col-start-2">
             <livewire:tree-view :tree="$tree" wire:key="kurikulum-tree" />
         </div>
     </div>

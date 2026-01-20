@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Livewire\Widget;
+
+use Livewire\Component;
+use App\Models\Dosen;
+use App\Models\Matakuliah;
+use App\Models\ProgramStudi;
+use App\Models\Kurikulum;
+use App\Models\KontrakKuliah;
+use App\Models\Rps;
+use App\Models\RealisasiPengajaran;
+use Illuminate\Support\Facades\DB;
+
+class CradStatistik extends Component
+{
+
+    public array $statsDosen = [];
+    public array $statsProgramStudi = [];
+    public array $statsKurikulum = [];
+    public array $statsPerangkatAjar = [];
+
+    public array $statsMatakuliah = [];
+
+    public ?int $prodiId = null;
+
+    public function mount()
+    {
+        $this->filterData();
+        $this->getTotalDosen();
+        $this->getTotalProgramStudi();
+        $this->getTotalKurikulum();
+        $this->getTotalPerangkatAjar();
+        $this->getTotalMatakuliah();
+    }
+
+    public function filterData()
+    {
+        if (in_array(session('active_role'), ['Kaprodi', 'Dosen'])) {
+            $programstudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+            $this->prodiId = $programstudi?->id;
+        }
+    }
+
+    protected function getTotalDosen()
+    {
+        $getTotalDosen = Dosen::query()
+            ->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))->count();
+
+        $this->statsDosen = [
+            'show' => !in_array(session('active_role'), ['Dosen']),
+            'title' => 'Jumlah Dosen',
+            'value' => $getTotalDosen,
+        ];
+    }
+
+    protected function getTotalProgramStudi()
+    {
+
+        $getotalProgramStudi = ProgramStudi::count();
+
+        $this->statsProgramStudi = [
+            'show' => !in_array(session('active_role'), ['Dosen', 'Kaprodi']),
+            'title' => 'Jumlah Program Studi',
+            'value' => $getotalProgramStudi
+        ];
+    }
+
+    protected function getTotalMatakuliah()
+    {
+        $getTotalMatakuliah = Matakuliah::query()
+            ->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))->count();
+        $this->statsMatakuliah = [
+            'show' => in_array(session('active_role'), ['Dosen', 'Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
+            'title' => 'Jumlah Matakuliah',
+            'value' => $getTotalMatakuliah
+        ];
+    }
+
+    protected function getTotalKurikulum()
+    {
+        $status = ['submitted', 'published', 'archived'];
+        $getTotalKurikulum = Kurikulum::count();
+        $details = [];
+        foreach ($status as $s) {
+            $details[$s] = Kurikulum::where('status', $s)->count();
+        }
+        $this->statsKurikulum = [
+            'show' => in_array(session('active_role'), ['Dosen', 'Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
+            'title' => 'Jumlah Kurikulum',
+            'value' => $getTotalKurikulum,
+            'details' => $details
+        ];
+    }
+
+    protected function getTotalPerangkatAjar()
+    {
+        $getTotalKontrak = KontrakKuliah::count();
+        $getTotalRps = Rps::count();
+        $getTotalRs = RealisasiPengajaran::count();
+        $this->statsPerangkatAjar = [
+            'show' => in_array(session('active_role'), ['Dosen', 'Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
+            'title' => 'Jumlah Perangkat Ajar',
+            'value' => $getTotalKontrak + $getTotalRps + $getTotalRs,
+            'details' => [
+                'Kontrak Kuliah' => $getTotalKontrak,
+                'RPS' => $getTotalRps,
+                'Realisasi Pengajaran' => $getTotalRs
+            ]
+        ];
+    }
+    public function render()
+    {
+        return view('livewire.widget.crad-statistik');
+    }
+}

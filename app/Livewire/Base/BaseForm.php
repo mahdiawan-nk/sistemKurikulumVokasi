@@ -6,10 +6,13 @@ use Livewire\Component;
 use WireUi\Traits\WireUiActions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 abstract class BaseForm extends Component
 {
     use WireUiActions;
+    protected $user;
+    public $isKaprodi = false;
 
     public ?int $selectedId = null;
     public bool $showForm = false;
@@ -25,6 +28,30 @@ abstract class BaseForm extends Component
 
     /** Optional: define relations for sync */
     protected array $relations = [];
+
+    public function boot()
+    {
+        $this->user = Auth::user();
+        $this->isKaprodi();
+
+    }
+
+    protected function isKaprodi()
+    {
+        $isKaprodi = session('active_role') == 'Kaprodi';
+
+        if ($isKaprodi) {
+            $programStudi = $this->user
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+            $this->selectedId = $programStudi?->id;
+            $this->form['programStudis'] = [$this->selectedId];
+            $this->isKaprodi = true;
+        }
+    }
 
     /** Open form for create */
     public function openCreate()
@@ -64,7 +91,7 @@ abstract class BaseForm extends Component
      * Hook before save (create / update)
      * Bisa dioverride di child
      */
-    protected function beforeSave(string $action,?int $cloneKurikulumId=null): void
+    protected function beforeSave(string $action, ?int $cloneKurikulumId = null): void
     {
         // default: do nothing
     }

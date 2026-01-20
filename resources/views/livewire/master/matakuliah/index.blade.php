@@ -81,18 +81,16 @@
         </section>
     @endif
 
-
-    @if ($showCreate)
-        <div class="w-full max-w-4xl md:max-w-5xl lg:max-w-4xl xl:max-w-3xl mx-auto sm:px-6 lg:px-8 mt-2">
+    <x-ui.pages.section-view>
+        @if ($showCreate)
             <livewire:master.matakuliah.create-update wire:key="create" />
-        </div>
-    @endif
-
-    @if ($showUpdate)
-        <div class="w-full max-w-4xl md:max-w-5xl lg:max-w-4xl xl:max-w-3xl mx-auto sm:px-6 lg:px-8 mt-2">
+        @endif
+        @if ($showUpdate)
             <livewire:master.matakuliah.create-update wire:key="update-{{ $selectedId }}" :id="$selectedId" />
-        </div>
-    @endif
+        @endif
+    </x-ui.pages.section-view>
+
+   
     <x-ui.forms.sample-data max="15" min="1">
         <x-slot name="field">
             @foreach (range(1, $jmlSemester) as $s)

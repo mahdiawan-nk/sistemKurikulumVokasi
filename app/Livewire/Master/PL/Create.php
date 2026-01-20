@@ -6,19 +6,39 @@ use Livewire\Component;
 use App\Models\ProgramStudi;
 use App\Models\ProfileLulusan as PL;
 use WireUi\Traits\WireUiActions;
-
+use Illuminate\Support\Facades\Auth;
 class Create extends Component
 {
     use WireUiActions;
+
+    protected $user;
+    public $isKaprodi = false;
     public string $code = '';
     public string $name = '';
     public string $description = '';
-    public  $prodi_id = [];
+    public $prodi_id = [];
 
     public function mount()
     {
-        // dump('test');
+        $this->user = Auth::user();
+        $this->isKaprodi();// dump('test');
 
+    }
+
+    protected function isKaprodi()
+    {
+        $isKaprodi = session('active_role') == 'Kaprodi';
+
+        if ($isKaprodi) {
+            $programStudi = $this->user
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+            $this->prodi_id = [$programStudi?->id];
+            $this->isKaprodi = true;
+        }
     }
 
     public function getProdiProperty()

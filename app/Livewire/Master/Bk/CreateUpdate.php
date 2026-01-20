@@ -5,13 +5,16 @@ namespace App\Livewire\Master\Bk;
 use App\Livewire\Base\BaseForm;
 use App\Models\ProgramStudi;
 use App\Models\BahanKajian as BK;
+use Illuminate\Support\Facades\Auth;
 class CreateUpdate extends BaseForm
 {
 
+    
     protected array $relations = ['programStudis'];
 
     public function mount($id = null)
     {
+        $this->isKaprodi();
         if ($id) {
             $this->openEdit($id);
         }

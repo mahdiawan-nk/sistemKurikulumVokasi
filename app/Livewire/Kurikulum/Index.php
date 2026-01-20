@@ -62,10 +62,10 @@ class Index extends BaseTable
         }
         $role = session('active_role');
         $inArray = ['Kaprodi', 'WADIR 1', 'Direktur', 'BPM'];
-        if(in_array($role, $inArray)){
-            $this->filter['status']= ['published','approved_direktur','approved_wadir','approved_bpm','archived','submitted'];
-            return;
-        }
+        // if(in_array($role, $inArray)){
+        //     $this->filter['status']= ['published','approved_direktur','approved_wadir','approved_bpm','archived','submitted'];
+        //     return;
+        // }
         // if(session('active_role') == 'WADIR 1'){
         //     $this->filter['status']= ['submitted','published','archived'];
         //     return;
