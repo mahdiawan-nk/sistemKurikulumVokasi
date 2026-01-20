@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->string('tahun_akademik')->nullable()->after('dosen_id');
+            // $table->string('tahun_akademik')->nullable()->after('dosen_id');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->dropColumn('tahun_akademik');
+            // $table->dropColumn('tahun_akademik');
         });
     }
 };

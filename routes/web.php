@@ -28,6 +28,7 @@ use App\Livewire\PerangkatAjar\RealisasiAjar\Index as RealisasiAjar;
 use App\Livewire\PerangkatAjar\RealisasiAjar\Create as RealisasiAjarCreate;
 use App\Livewire\PerangkatAjar\RealisasiAjar\Update as RealisasiAjarUpdate;
 use App\Livewire\PerangkatAjar\RealisasiAjar\View as RealisasiAjarView;
+use App\Livewire\PerangkatAjar\BebanAjar\Index as BebanAjar;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -69,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('perangkat-ajar')
         ->name('perangkat-ajar.')
         ->group(function () {
+
+            Volt::route('beban-ajar', BebanAjar::class)->name('beban-ajar.index');
             Volt::route('/', PerangkatAjar::class)->name('index');
             Volt::route('kontrak-kuliah', KontrakKuliah::class)->name('kontrak-kuliah.index');
             Volt::route('kontrak-kuliah/create/{id?}', KontrakKuliahCreateUpdate::class)->name('kontrak-kuliah.create');
@@ -85,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('realisasi-ajar/update/{id?}', RealisasiAjarUpdate::class)->name('realisasi-ajar.update');
             Volt::route('realisasi-ajar/view/{id?}', RealisasiAjarView::class)->name('realisasi-ajar.view');
         });
-    
+
     Route::get('view-pdf', [PdfController::class, 'preview'])->name('pdf.preview');
 
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');

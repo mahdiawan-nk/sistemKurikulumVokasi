@@ -5,7 +5,7 @@ namespace App\Livewire\Master\Dosen;
 use App\Livewire\Base\BaseTable;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use App\Repositories\ApiClientRepository;
 use App\Services\UserCreatorService;
 use Flux\Flux;
@@ -77,55 +77,219 @@ class Index extends BaseTable
 
     public function syncToDatabase()
     {
-        $userService = new UserCreatorService();
+        DB::transaction(function () {
 
-        DSN::upsert(
-            collect($this->dataApi)
-                ->map(fn($item) => [
+            $userService = new UserCreatorService();
+            $now = now();
+
+            $payload = collect($this->dataApi);
+
+            /**
+             * =====================
+             * 1️⃣ UPSERT DSN (BULK)
+             * =====================
+             */
+            DSN::upsert(
+                $payload->map(fn($item) => [
                     'nrp' => $item['nrp'],
                     'nidn' => $item['nidn'],
                     'name' => $item['name'],
                     'email' => $item['email'],
                     'gender' => $item['gender'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ])->toArray(),
-            ['nrp', 'nidn'], // unique keys
-            ['name', 'email', 'gender', 'updated_at']
-        );
-
-        foreach ($this->dataApi as $item) {
-            $dsn = DSN::where('nrp', $item['nrp'])
-                ->orWhere('nidn', $item['nidn'])
-                ->first();
-
-            if (!$dsn)
-                continue;
-            $prodiIds = ProgramStudi::whereIn('code', $item['programStudis'])
-                ->pluck('id')
-                ->toArray();
-
-            if (!empty($prodiIds)) {
-                $dsn->programStudis()->sync($prodiIds);
-            }
-            // ⬇️ Create or retrieve user
-            $user = $userService->createOrGet(
-                email: $item['email'],
-                name: $item['name']
+                ['nrp', 'nidn'],
+                ['name', 'email', 'gender', 'updated_at']
             );
 
-            // ⬇️ Attach pivot DSN → User
-            $userService->attachToPivot($dsn, $user);
+            /**
+             * =====================
+             * 2️⃣ CACHE DSN MAP
+             * =====================
+             */
+            $dsnMap = DSN::whereIn('nrp', $payload->pluck('nrp'))
+                ->orWhereIn('nidn', $payload->pluck('nidn'))
+                ->get()
+                ->keyBy(fn($d) => $d->nrp ?: $d->nidn);
 
-            // ⬇️ Assign default role (role_id=4)
-            $userService->assignRoles($user, 4);
-        }
+            /**
+             * =====================
+             * 3️⃣ CACHE PROGRAM STUDI MAP
+             * =====================
+             */
+            $allProdiCodes = $payload
+                ->pluck('programStudis')
+                ->flatten()
+                ->unique()
+                ->values();
+
+            $prodiMap = ProgramStudi::whereIn('code', $allProdiCodes)
+                ->pluck('id', 'code');
+
+            /**
+             * =====================
+             * 4️⃣ CACHE USERS MAP
+             * =====================
+             */
+            $emails = $payload->pluck('email')->unique();
+
+            $userMap = User::whereIn('email', $emails)
+                ->get()
+                ->keyBy('email');
+
+            $userInsert = [];
+
+            foreach ($payload as $item) {
+                if (!isset($userMap[$item['email']])) {
+                    $userInsert[] = [
+                        'name' => $item['name'],
+                        'email' => $item['email'],
+                        'password' => bcrypt('password123'), // atau random
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+            }
+
+            if (!empty($userInsert)) {
+                User::insert($userInsert);
+
+                $userMap = User::whereIn('email', $emails)
+                    ->get()
+                    ->keyBy('email');
+            }
+
+            /**
+             * =====================
+             * 5️⃣ PREPARE PIVOTS (BULK)
+             * =====================
+             */
+            $dsnUserPivot = [];
+            $dsnProdiPivot = [];
+            $userRolePivot = [];
+
+            foreach ($payload as $item) {
+                $dsn = $dsnMap[$item['nrp']] ?? $dsnMap[$item['nidn']] ?? null;
+                $user = $userMap[$item['email']] ?? null;
+
+                if (!$dsn || !$user) {
+                    continue;
+                }
+
+                // DSN → USER
+                $dsnUserPivot[] = [
+                    'dosen_id' => $dsn->id,
+                    'user_id' => $user->id,
+                ];
+
+                // ROLE DEFAULT = 4
+                $userRolePivot[] = [
+                    'user_id' => $user->id,
+                    'role_id' => 3,
+                ];
+
+                // DSN → PROGRAM STUDI
+                foreach ($item['programStudis'] as $code) {
+                    if (!isset($prodiMap[$code]))
+                        continue;
+
+                    $dsnProdiPivot[] = [
+                        'dosen_id' => $dsn->id,
+                        'prodi_id' => $prodiMap[$code],
+                    ];
+                }
+            }
+
+            /**
+             * =====================
+             * 6️⃣ BULK INSERT PIVOTS
+             * =====================
+             */
+            DB::table('tx_user_dosens')->upsert(
+                $dsnUserPivot,
+                ['dosen_id', 'user_id'],
+                []
+            );
+
+            DB::table('tx_dosen_prodis')->upsert(
+                $dsnProdiPivot,
+                ['dosen_id', 'prodi_id'],
+                []
+            );
+
+            DB::table('tx_user_roles')->upsert(
+                $userRolePivot,
+                ['user_id', 'role_id'],
+                []
+            );
+        });
+
+        /**
+         * =====================
+         * UI FEEDBACK
+         * =====================
+         */
         $this->notification()->send([
             'icon' => 'success',
             'title' => 'Success',
-            'description' => 'Data Berhasil di sinkronkan',
+            'description' => 'Data Berhasil di sinkronkan (Optimized)',
         ]);
 
         $this->modal()->close('simpleModal');
     }
+
+    // public function syncToDatabase()
+    // {
+    //     $userService = new UserCreatorService();
+
+    //     DSN::upsert(
+    //         collect($this->dataApi)
+    //             ->map(fn($item) => [
+    //                 'nrp' => $item['nrp'],
+    //                 'nidn' => $item['nidn'],
+    //                 'name' => $item['name'],
+    //                 'email' => $item['email'],
+    //                 'gender' => $item['gender'],
+    //                 'created_at' => now(),
+    //                 'updated_at' => now(),
+    //             ])->toArray(),
+    //         ['nrp', 'nidn'], // unique keys
+    //         ['name', 'email', 'gender', 'updated_at']
+    //     );
+
+    //     foreach ($this->dataApi as $item) {
+    //         $dsn = DSN::where('nrp', $item['nrp'])
+    //             ->orWhere('nidn', $item['nidn'])
+    //             ->first();
+
+    //         if (!$dsn)
+    //             continue;
+    //         $prodiIds = ProgramStudi::whereIn('code', $item['programStudis'])
+    //             ->pluck('id')
+    //             ->toArray();
+
+    //         if (!empty($prodiIds)) {
+    //             $dsn->programStudis()->sync($prodiIds);
+    //         }
+    //         // ⬇️ Create or retrieve user
+    //         $user = $userService->createOrGet(
+    //             email: $item['email'],
+    //             name: $item['name']
+    //         );
+
+    //         // ⬇️ Attach pivot DSN → User
+    //         $userService->attachToPivot($dsn, $user);
+
+    //         // ⬇️ Assign default role (role_id=4)
+    //         $userService->assignRoles($user, 4);
+    //     }
+    //     $this->notification()->send([
+    //         'icon' => 'success',
+    //         'title' => 'Success',
+    //         'description' => 'Data Berhasil di sinkronkan',
+    //     ]);
+
+    //     $this->modal()->close('simpleModal');
+    // }
 }

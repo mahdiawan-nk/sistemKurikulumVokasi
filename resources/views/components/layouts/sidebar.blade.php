@@ -92,6 +92,14 @@
 
                 $menuPerangkatAjar = [
                     [
+                        'name' => 'Beban Aja Kuliah',
+                        'url' => route('perangkat-ajar.beban-ajar.index'),
+                        'active' => request()->routeIs('perangkat-ajar.beban-ajar.*'),
+                        'gate' => 'viewAny',
+                        'models' => App\Models\BebanAjarDosen::class,
+                        'block' => ['Dosen', 'WADIR 1', 'BPM', 'Direktur'],
+                    ],
+                    [
                         'name' => 'Kontrak Kuliah',
                         'url' => route('perangkat-ajar.kontrak-kuliah.index'),
                         'active' => request()->routeIs('perangkat-ajar.kontrak-kuliah.*'),
@@ -144,24 +152,24 @@
                 @endif
                 @if (request()->routeIs('perangkat-ajar.*'))
                     @foreach ($menuPerangkatAjar as $label => $item)
-                        {{-- @can($item['gate'], [$item['models'], $item['block']]) --}}
-                        <a href="{{ $item['url'] }}" wire:navigate
-                            class="@activeClassSide($item['active'])
+                        @can($item['gate'], [$item['models'], $item['block']])
+                            <a href="{{ $item['url'] }}" wire:navigate
+                                class="@activeClassSide($item['active'])
                             group flex items-center gap-3 rounded-lg
                             px-3 py-2 text-sm font-medium
                             text-gray-700 dark:text-gray-300
                             hover:bg-gray-100 dark:hover:bg-gray-800
                             hover:text-gray-900 dark:hover:text-white
                             transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="size-5 shrink-0">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-                            </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-5 shrink-0">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                </svg>
 
-                            <span>{{ $item['name'] }}</span>
-                        </a>
-                        {{-- @endcan --}}
+                                <span>{{ $item['name'] }}</span>
+                            </a>
+                        @endcan
                     @endforeach
                 @endif
 

@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('kontrak_kuliahs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('prodi_id')->nullable();
             $table->unsignedBigInteger('matakuliah_id');
             $table->unsignedBigInteger('dosen_id');
+            $table->string('tahun_akademik')->nullable();
             $table->string('kelas');
             $table->integer('total_jam')->nullable();
             $table->text('tujuan_pembelajaran')->nullable();
@@ -22,10 +24,12 @@ return new class extends Migration
             $table->text('materi_pembelajaran')->nullable();
             $table->text('kriteria_penilaian')->nullable();
             $table->text('tata_tertib')->nullable();
+            $table->enum('status', ['draft', 'submitted', 'published', 'rejected'])->default('draft');
             $table->timestamps();
 
             $table->foreign('matakuliah_id')->references('id')->on('matakuliahs')->onDelete('cascade');
             $table->foreign('dosen_id')->references('id')->on('dosens')->onDelete('cascade');
+            $table->foreign('prodi_id')->references('id')->on('program_studis')->onDelete('cascade');
         });
     }
 

@@ -8,7 +8,7 @@
                 <div class="flex flex-col gap-3">
                     <flux:field>
                         <flux:label>Program Studi</flux:label>
-                        <flux:select wire:model="form.programStudis">
+                        <flux:select wire:model="form.programStudis" :disabled="$isKaprodi">
                             <flux:select.option value="">Pilih Program Studi</flux:select.option>
                             @foreach ($this->getProdiProperty() as $pd)
                                 <flux:select.option value="{{ $pd->id }}">{{ $pd->jenjang }}-{{ $pd->name }}
@@ -27,7 +27,7 @@
                         <flux:input wire:model="form.name" type="text" />
                         <flux:error name="form.name" />
                     </flux:field>
-                    <flux:field>
+                    {{-- <flux:field>
                         <flux:label>SKS</flux:label>
                         <flux:input wire:model="form.sks" type="number" />
                         <flux:error name="form.sks" />
@@ -36,7 +36,7 @@
                         <flux:label>Semester</flux:label>
                         <flux:input wire:model="form.semester" type="number" />
                         <flux:error name="form.semester" />
-                    </flux:field>
+                    </flux:field> --}}
                     <flux:field>
                         <flux:label>Type MK</flux:label>
                         <flux:radio.group wire:model="form.jenis" variant="segmented">

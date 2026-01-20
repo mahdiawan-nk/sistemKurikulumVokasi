@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use App\Models\Matakuliah as MK;
+use App\Models\BebanAjarDosen;
 use App\Models\KontrakKuliah;
 #[Title('Kontrak Kuliah')]
 #[Layout('components.layouts.sidebar')]
@@ -33,6 +34,7 @@ class CreateUpdate extends Component
 
     public ?int $activeProdi = null;
 
+    public $dosenIdActive = null;
 
 
     public function mount(int $id = null)
@@ -58,8 +60,16 @@ class CreateUpdate extends Component
                     ?->first();
 
             $this->activeProdi = $programStudi?->id;
+            $this->dosenIdActive = auth()->user()->dosenId();
             return;
         }
+    }
+
+    protected function getListBebanAjar(){
+        $getBebanAjar = BebanAjarDosen::query()
+            ->where('dosen_id', $this->dosenIdActive)
+            ->get()->pluck('matakuliah_id')->toArray();
+        return $getBebanAjar;
     }
 
     protected function setListMk()
@@ -71,6 +81,7 @@ class CreateUpdate extends Component
                     $query->where('program_studis.id', $this->activeProdi);
                 });
             })
+            ->whereIn('id', $this->getListBebanAjar())
             ->get()
             ->map(function ($mk) {
                 return [

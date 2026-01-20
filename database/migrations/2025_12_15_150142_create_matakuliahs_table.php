@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,8 +14,8 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name');
-            $table->integer('sks');
-            $table->integer('semester');
+            $table->integer('sks')->nullable();
+            $table->integer('semester')->nullable();
             $table->enum('jenis', ['T', 'P']);
             $table->text('description');
             $table->timestamps();

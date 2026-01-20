@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->unsignedBigInteger('prodi_id')->nullable()->after('matakuliah_id');
-            $table->foreign('prodi_id')->references('id')->on('program_studis')->onDelete('cascade');
+            // $table->unsignedBigInteger('prodi_id')->nullable()->after('matakuliah_id');
+            // $table->foreign('prodi_id')->references('id')->on('program_studis')->onDelete('cascade');
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->dropForeign(['prodi_id']);
-            $table->dropColumn('prodi_id');
+            // $table->dropForeign(['prodi_id']);
+            // $table->dropColumn('prodi_id');
         });
     }
 };

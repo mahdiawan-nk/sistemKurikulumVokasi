@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->boolean('pemberian_tugas')->default(false);
             $table->json('alokasi')->nullable(); // array of tipe, jumlah, menit
             $table->json('bobots')->nullable(); // array of jenis, bobot
+            $table->json('rancangan_penilaian')->nullable();
             $table->timestamps();
 
             $table->index(['rps_id', 'pertemuan_ke']);

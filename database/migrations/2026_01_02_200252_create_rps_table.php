@@ -18,9 +18,10 @@ return new class extends Migration {
             $table->foreignId('dosen_id')->constrained('dosens')->cascadeOnDelete();
             $table->string('academic_year');
             $table->integer('revision')->default(0);
-            $table->json('learning_method')->nullable();
+            $table->json('cpmk_bobot')->nullable();
+            $table->text('learning_method')->nullable();
             $table->text('learning_experience')->nullable();
-            $table->enum('status', ['draft', 'submitted', 'approved', 'rejected'])->default('draft');
+            $table->enum('status', ['draft', 'submitted', 'approved', 'published', 'rejected'])->default('draft');
             $table->timestamps();
 
             $table->index(['matakuliah_id', 'program_studi_id', 'class', 'academic_year']);

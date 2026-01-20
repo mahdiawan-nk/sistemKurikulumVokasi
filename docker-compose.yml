@@ -7,7 +7,6 @@ services:
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
     volumes:
       - ./:/var/www/html
-      # - ./docker/overrides/storage/framework/views:/var/www/html/storage/framework/views
     ports:
       - "9080:9000"
     depends_on:

@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'submitted', 'published', 'rejected'])->default('draft')->after('tata_tertib');
+            // $table->enum('status', ['draft', 'submitted', 'published', 'rejected'])->default('draft')->after('tata_tertib');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('kontrak_kuliahs', function (Blueprint $table) {
-            $table->dropColumn('status');
+            // $table->dropColumn('status');
         });
     }
 };

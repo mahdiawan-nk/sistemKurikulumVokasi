@@ -18,6 +18,7 @@ return new class extends Migration {
                 ->restrictOnDelete();
 
             $table->foreignId('dosen_id')
+                ->nullable()
                 ->constrained('dosens')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();

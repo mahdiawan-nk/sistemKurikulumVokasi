@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rps', function (Blueprint $table) {
-            $table->json('cpmk_bobot')->nullable()->after('revision');
+            // $table->json('cpmk_bobot')->nullable()->after('revision');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rps', function (Blueprint $table) {
-            $table->dropColumn('cpmk_bobot');
+            // $table->dropColumn('cpmk_bobot');
         });
     }
 };

@@ -9,5 +9,6 @@ class UserPolicy extends BasePolicy
 {
     protected array $allowedRoles = [
         'Superadmin',
+        'Akademik'
     ];
 }

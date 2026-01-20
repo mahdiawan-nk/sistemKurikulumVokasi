@@ -158,57 +158,48 @@
                                 <thead
                                     class="border-b border-neutral-300 bg-neutral-50 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
                                     <tr>
-                                        <th scope="col" class="p-4 w-16">Code BK</th>
-                                        <th scope="col" class="p-4 w-96">Bahan Kajian</th>
-                                        <th scope="col" class="p-4 w-10">Matakuliah</th>
+                                        <th class="p-4 w-32">Code BK</th>
+                                        <th class="p-4">Bahan Kajian</th>
+                                        <th class="p-4 w-32 text-center">Detail</th>
                                     </tr>
                                 </thead>
+
                                 <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
                                     @foreach ($listBk as $bk)
-                                        <tr>
-                                            <td class="p-4">{{ $bk->code }}</td>
-                                            <td class="p-4">{{ $bk->name }}</td>
+                                <tbody x-data="{ open: false }">
+                                    <tr>
+                                        <td class="p-4 font-medium">{{ $bk->code }}</td>
+                                        <td class="p-4">{{ $bk->name }}</td>
+                                        <td class="p-4 text-center">
 
-                                            <td class="p-4 align-top">
-                                                <div class="flex flex-col gap-2">
+                                            <button @click="open = !open" type="button"
+                                                class="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 transition">
+                                                <span x-show="!open">Lihat</span>
+                                                <span x-show="open">Tutup</span>
+                                            </button>
+                                        </td>
+                                    </tr>
 
-                                                    {{-- MK Selected --}}
-                                                    @if (!empty($setTempSelectBkMK[$bk->id]['code']))
-                                                        <div class="flex flex-wrap gap-1">
-                                                            @foreach (collect($setTempSelectBkMK[$bk->id]['code'])->take(3) as $code)
-                                                                <span
-                                                                    class="inline-flex items-center rounded-md
-                            bg-blue-50 text-blue-700
-                            px-2 py-0.5 text-xs font-medium
-                            dark:bg-blue-900/30 dark:text-blue-300">
-                                                                    {{ $code }}
-                                                                </span>
-                                                            @endforeach
-
-                                                            @if (count($setTempSelectBkMK[$bk->id]['code']) > 3)
-                                                                <span class="text-xs text-neutral-500">
-                                                                    +{{ count($setTempSelectBkMK[$bk->id]['code']) - 3 }}
-                                                                </span>
-                                                            @endif
-                                                        </div>
-                                                    @else
-                                                        <span class="text-xs italic text-neutral-400">
-                                                            Belum ada MK
-                                                        </span>
-                                                    @endif
-
-                                                    {{-- Action --}}
-                                                    <flux:button icon="plus" size="xs" variant="ghost"
-                                                        wire:click="openAddRelation('bk_mk',{{ $bk->id }})">
-                                                        <span class="sr-only">Tambah MK</span>
-                                                    </flux:button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                    <tr x-show="open" x-transition>
+                                        <td colspan="3" class="p-4 bg-neutral-50 dark:bg-neutral-900">
+                                            <div class="flex flex-wrap gap-3 max-h-96 overflow-y-auto">
+                                                @foreach ($listMk as $mk)
+                                                    <div class="w-full sm:w-1/3 md:w-1/5 lg:w-1/6">
+                                                        <flux:checkbox
+                                                            wire:key="bk-mk-{{ $bk->id }}-{{ $mk->id }}"
+                                                            wire:model.defer="form.bk_mk.{{ $bk->id }}"
+                                                            value="{{ $mk->id }}" label="{{ $mk->code }}"
+                                                            description="{{ $mk->name }}" />
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
-
+                                @endforeach
+                                </tbody>
                             </table>
+
                         </div>
 
                     </x-card.content>
@@ -279,56 +270,104 @@
                     </x-card.header>
                     <x-card.content>
                         <div
-                            class="relative w-full
-           max-h-[65vh]
+                            class="relative w-full max-h-[65vh]
            overflow-x-auto overflow-y-auto
-           rounded-sm border border-neutral-300
-           dark:border-neutral-700">
-                            <table class="min-w-max w-full text-left text-sm text-neutral-600 dark:text-neutral-300">
+           rounded-xl
+           border border-neutral-200
+           bg-white shadow-sm
+           dark:border-neutral-800 dark:bg-neutral-950">
+
+                            <table
+                                class="min-w-max w-full
+               text-sm
+               text-neutral-700
+               dark:text-neutral-300
+               border-collapse">
+
                                 <thead
-                                    class="sticky top-0 z-10
-                   border-b border-neutral-300
-                   bg-neutral-50 text-sm text-neutral-900
-                   dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+                                    class="sticky top-0 z-20
+                   bg-neutral-100/90 backdrop-blur
+                   border-b border-neutral-200
+                   dark:bg-neutral-900/90
+                   dark:border-neutral-800">
+
                                     <tr>
-                                        <th class="p-4 w-24 whitespace-nowrap">Code MK</th>
-                                        <th class="p-4 w-96 whitespace-nowrap">Mata Kuliah</th>
+                                        <!-- Sticky Left Headers -->
+                                        <th
+                                            class="sticky left-0 z-30
+                           p-4 w-24 font-semibold
+                           bg-neutral-100 dark:bg-neutral-900
+                           border-r border-neutral-200
+                           dark:border-neutral-800">
+                                            Code MK
+                                        </th>
+
+                                        <th
+                                            class="sticky left-24 z-30
+                           p-4 min-w-[360px] font-semibold
+                           bg-neutral-100 dark:bg-neutral-900
+                           border-r border-neutral-200
+                           dark:border-neutral-800">
+                                            Mata Kuliah
+                                        </th>
 
                                         @foreach ($listCpl as $cpl)
-                                            <th class="p-4 w-14 text-center whitespace-nowrap">
+                                            <th class="p-4 w-14 text-center font-semibold whitespace-nowrap">
                                                 {{ $cpl->code }}
                                             </th>
                                         @endforeach
                                     </tr>
                                 </thead>
 
-                                <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
+                                <tbody class="divide-y divide-neutral-200
+                   dark:divide-neutral-800">
+
                                     @foreach ($listMk as $mk)
-                                        <tr>
-                                            <td class="p-4 whitespace-nowrap">
+                                        <tr
+                                            class="transition-colors
+                           hover:bg-neutral-50
+                           dark:hover:bg-neutral-800/50">
+
+                                            <!-- Sticky Left Cells -->
+                                            <td
+                                                class="sticky left-0 z-10
+                               p-4 whitespace-nowrap font-medium
+                               bg-white dark:bg-neutral-950
+                               border-r border-neutral-200
+                               dark:border-neutral-800">
                                                 {{ $mk->code }}
                                             </td>
-                                            <td class="p-4 whitespace-nowrap">
+
+                                            <td
+                                                class="sticky left-24 z-10
+                               p-4 whitespace-nowrap
+                               bg-white dark:bg-neutral-950
+                               border-r border-neutral-200
+                               dark:border-neutral-800">
                                                 {{ $mk->name }}
                                             </td>
 
                                             @foreach ($listCpl as $cpl)
                                                 <td class="p-4 text-center">
-                                                    <flux:field variant="inline">
-                                                        <flux:checkbox
-                                                            id="mk-{{ $mk->id }}-cpl-{{ $cpl->id }}"
-                                                            wire:model.defer="form.mk_cpl.{{ $mk->id }}"
-                                                            value="{{ $cpl->id }}"
-                                                            wire:key="mk-{{ $mk->id }}-cpl-{{ $cpl->id }}" />
-                                                    </flux:field>
+                                                    <div class="flex justify-center">
+                                                        <flux:field variant="inline">
+                                                            <flux:checkbox
+                                                                id="mk-{{ $mk->id }}-cpl-{{ $cpl->id }}"
+                                                                wire:model.defer="form.mk_cpl.{{ $mk->id }}"
+                                                                value="{{ $cpl->id }}"
+                                                                wire:key="mk-{{ $mk->id }}-cpl-{{ $cpl->id }}"
+                                                                class="scale-110" />
+                                                        </flux:field>
+                                                    </div>
                                                 </td>
                                             @endforeach
+
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
                         </div>
-
 
                     </x-card.content>
                 </x-card>
@@ -338,87 +377,86 @@
                     </x-card.header>
                     <x-card.content>
                         <div
-                            class="relative w-full
-           max-h-[65vh]
+                            class="relative w-full max-h-[65vh]
            overflow-x-auto overflow-y-auto
-           rounded-sm border border-neutral-300
-           dark:border-neutral-700">
-                            <table class="min-w-max w-full text-left text-sm text-neutral-600 dark:text-neutral-300">
+           rounded-xl
+           border border-neutral-200
+           bg-white shadow-sm
+           dark:border-neutral-800 dark:bg-neutral-950">
+
+                            <table
+                                class="min-w-max w-full
+               text-sm
+               text-neutral-700
+               dark:text-neutral-300">
+
                                 <thead
                                     class="sticky top-0 z-10
-                   border-b border-neutral-300
-                   bg-neutral-50 text-sm text-neutral-900
-                   dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+                   bg-neutral-100/90 backdrop-blur
+                   border-b border-neutral-200
+                   text-neutral-900
+                   dark:bg-neutral-900/90
+                   dark:border-neutral-800
+                   dark:text-white">
+
                                     <tr>
-                                        <th class="p-4 w-14 whitespace-nowrap">Code MK</th>
-                                        <th class="p-4 w-26 ">Matakuliah</th>
+                                        <th class="p-4 w-20 font-semibold whitespace-nowrap">
+                                            Code MK
+                                        </th>
+
+                                        <th class="p-4 min-w-[260px] font-semibold">
+                                            Matakuliah
+                                        </th>
+
                                         @foreach ($listCpmk as $cpmk)
-                                            <th class="p-4 w-16 whitespace-nowrap">{{ $cpmk->code }}</th>
+                                            <th class="p-4 w-16 text-center font-semibold whitespace-nowrap">
+                                                {{ $cpmk->code }}
+                                            </th>
                                         @endforeach
                                     </tr>
                                 </thead>
 
-                                <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
+                                <tbody class="divide-y divide-neutral-200
+                   dark:divide-neutral-800">
+
                                     @foreach ($listMk as $mk)
-                                        <tr class="align-top">
+                                        <tr
+                                            class="transition-colors
+                           hover:bg-neutral-50
+                           dark:hover:bg-neutral-800/50">
+
+                                            <!-- Code -->
                                             <td class="p-4 font-medium whitespace-nowrap">
                                                 {{ $mk->code }}
                                             </td>
 
-                                            <td class="p-4 text-sm ">
+                                            <!-- Name -->
+                                            <td
+                                                class="p-4 leading-relaxed
+                               text-neutral-800
+                               dark:text-neutral-200">
                                                 {{ $mk->name }}
                                             </td>
+
                                             @foreach ($listCpmk as $cpmk)
                                                 <td class="p-4 text-center">
-                                                    <flux:checkbox
-                                                        id="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}"
-                                                        wire:model.defer="form.cpmk_mk.{{ $mk->id }}"
-                                                        value="{{ $cpmk->id }}"
-                                                        wire:key="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}" />
+                                                    <div class="flex justify-center">
+                                                        <flux:checkbox
+                                                            id="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}"
+                                                            wire:model.defer="form.cpmk_mk.{{ $mk->id }}"
+                                                            value="{{ $cpmk->id }}"
+                                                            wire:key="mk-{{ $mk->id }}-cpmk-{{ $cpmk->id }}"
+                                                            class="scale-110" />
+                                                    </div>
                                                 </td>
                                             @endforeach
-                                            {{-- <td class="p-4">
-                                                <div class="flex flex-col gap-2">
 
-                                                    @if (!empty($setTempSelectCpmkMK[$cpmk->id]['code']))
-                                                        <div class="flex flex-wrap gap-1">
-                                                            @foreach (collect($setTempSelectCpmkMK[$cpmk->id]['code'])->take(3) as $code)
-                                                                <span
-                                                                    class="inline-flex items-center rounded-md
-                                                   bg-emerald-50 text-emerald-700
-                                                   px-2 py-0.5 text-xs font-medium
-                                                   dark:bg-emerald-900/30 dark:text-emerald-300">
-                                                                    {{ $code }}
-                                                                </span>
-                                                            @endforeach
-
-                                                            @if (count($setTempSelectCpmkMK[$cpmk->id]['code']) > 3)
-                                                                <span
-                                                                    class="text-xs text-neutral-500 dark:text-neutral-400">
-                                                                    +{{ count($setTempSelectCpmkMK[$cpmk->id]['code']) - 3 }}
-                                                                </span>
-                                                            @endif
-                                                        </div>
-                                                    @else
-                                                        <span class="text-xs italic text-neutral-400">
-                                                            Belum ada MK
-                                                        </span>
-                                                    @endif
-
-                                                    <div>
-                                                        <flux:button icon="plus" size="xs" variant="ghost"
-                                                            wire:click="openAddRelation('cpmk_mk',{{ $cpmk->id }})">
-                                                            <span class="sr-only">Tambah MK</span>
-                                                        </flux:button>
-                                                    </div>
-                                                </div>
-                                            </td> --}}
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
                         </div>
-
 
                     </x-card.content>
                 </x-card>
@@ -428,23 +466,54 @@
                     </x-card.header>
                     <x-card.content>
                         <div
-                            class="overflow-hidden w-full overflow-x-auto rounded-sm border border-neutral-300 dark:border-neutral-700">
-                            <table class="w-full text-left text-sm text-neutral-600 dark:text-neutral-300">
+                            class="relative w-full overflow-x-auto rounded-xl
+           border border-neutral-200
+           bg-white shadow-sm
+           dark:border-neutral-800 dark:bg-neutral-950">
+
+                            <table
+                                class="w-full min-w-max text-left text-sm
+               text-neutral-700
+               dark:text-neutral-300">
+
                                 <thead
-                                    class="border-b border-neutral-300 bg-neutral-50 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+                                    class="sticky top-0 z-10
+                   bg-neutral-100/90 backdrop-blur
+                   text-neutral-900
+                   border-b border-neutral-200
+                   dark:bg-neutral-900/90
+                   dark:text-white
+                   dark:border-neutral-800">
+
                                     <tr>
-                                        <th scope="col" class="p-4 w-16">Code BK</th>
+                                        <th scope="col" class="p-4 w-24 font-semibold whitespace-nowrap">
+                                            Code BK
+                                        </th>
+
                                         @foreach ($listCpl as $cpl)
-                                            <th scope="col" class="p-4 w-10">{{ $cpl->code }}</th>
+                                            <th scope="col" class="p-4 w-14 text-center font-semibold">
+                                                {{ $cpl->code }}
+                                            </th>
                                         @endforeach
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-neutral-300 dark:divide-neutral-700">
+
+                                <tbody class="divide-y divide-neutral-200
+                   dark:divide-neutral-800">
+
                                     @foreach ($listBk as $bk)
-                                        <tr>
-                                            <td class="p-4">{{ $bk->code }}</td>
+                                        <tr
+                                            class="transition-colors
+                           hover:bg-neutral-50
+                           dark:hover:bg-neutral-800/50">
+
+                                            <!-- Code BK -->
+                                            <td class="p-4 font-medium whitespace-nowrap">
+                                                {{ $bk->code }}
+                                            </td>
+
                                             @foreach ($listCpl as $cpl)
-                                                <td class="p-4 align-top">
+                                                <td class="p-3 align-top">
                                                     <div class="flex flex-col gap-2">
 
                                                         {{-- MK Selected --}}
@@ -452,10 +521,10 @@
                                                             <div class="flex flex-wrap gap-1">
                                                                 @foreach (collect($setTempSelectCplBkMK[$bk->id][$cpl->id]['code'])->take(3) as $code)
                                                                     <span
-                                                                        class="inline-flex items-center rounded-md
-                                                                            bg-blue-50 text-blue-700
-                                                                            px-2 py-0.5 text-xs font-medium
-                                                                            dark:bg-blue-900/30 dark:text-blue-300">
+                                                                        class="inline-flex items-center rounded-full
+                                                       bg-blue-100 text-blue-700
+                                                       px-2 py-0.5 text-[11px] font-medium
+                                                       dark:bg-blue-900/30 dark:text-blue-300">
                                                                         {{ $code }}
                                                                     </span>
                                                                 @endforeach
@@ -463,14 +532,20 @@
                                                                 {{-- +N indicator --}}
                                                                 @if (count($setTempSelectCplBkMK[$bk->id][$cpl->id]['code']) > 3)
                                                                     <span
-                                                                        class="text-xs text-neutral-500 dark:text-neutral-400">
+                                                                        class="inline-flex items-center
+                                                       text-[11px]
+                                                       text-neutral-500
+                                                       dark:text-neutral-400">
                                                                         +{{ count($setTempSelectCplBkMK[$bk->id][$cpl->id]['code']) - 3 }}
                                                                     </span>
                                                                 @endif
                                                             </div>
                                                         @else
                                                             {{-- Empty State --}}
-                                                            <span class="text-xs italic text-neutral-400">
+                                                            <span
+                                                                class="text-[11px] italic
+                                               text-neutral-400
+                                               dark:text-neutral-500">
                                                                 Belum ada MK
                                                             </span>
                                                         @endif
@@ -479,19 +554,23 @@
                                                         <div>
                                                             <flux:button icon="plus" size="xs"
                                                                 variant="ghost"
+                                                                class="hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                                                 wire:click="openAddCplBkMk({{ $cpl->id }}, {{ $bk->id }})">
                                                                 <span class="sr-only">Tambah MK</span>
                                                             </flux:button>
                                                         </div>
+
                                                     </div>
                                                 </td>
                                             @endforeach
 
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
                         </div>
+
 
                     </x-card.content>
                 </x-card>
@@ -653,6 +732,107 @@
                                 </div>
                             @endforeach
                         </div>
+
+                    </x-card.content>
+                </x-card>
+                <x-card class="col-span-12" wire:show="tabActive == 9">
+                    <x-card.header>
+                        <x-card.title class="dark:text-white">Distribusi MK</x-card.title>
+                    </x-card.header>
+                    <x-card.content>
+                        <div
+                            class="relative w-full
+           max-h-[65vh]
+           overflow-x-auto overflow-y-auto
+           rounded-xl border border-neutral-200
+           bg-white
+           shadow-sm
+           dark:bg-neutral-950
+           dark:border-neutral-800">
+
+                            <table
+                                class="min-w-max w-full text-left text-sm
+               text-neutral-700
+               dark:text-neutral-300">
+
+                                <thead
+                                    class="sticky top-0 z-10
+                   bg-neutral-100/90 backdrop-blur
+                   text-neutral-900
+                   border-b border-neutral-200
+                   dark:bg-neutral-900/90
+                   dark:text-white
+                   dark:border-neutral-800">
+
+                                    <!-- ROW 1: HEADER UTAMA -->
+                                    <tr>
+                                        <th rowspan="2"
+                                            class="p-4 w-20 whitespace-nowrap align-middle font-semibold">
+                                            Code MK
+                                        </th>
+
+                                        <th rowspan="2" class="p-4 w-72 align-middle font-semibold">
+                                            Matakuliah
+                                        </th>
+
+                                        <th rowspan="2" class="p-4 w-32 text-center align-middle font-semibold">
+                                            SKS
+                                        </th>
+
+                                        <th class="p-4 text-center font-semibold">
+                                            Semester
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="divide-y divide-neutral-200
+                   dark:divide-neutral-800">
+
+                                    @foreach ($listMk as $mk)
+                                        <tr
+                                            class="align-top
+                           transition-colors
+                           hover:bg-neutral-50
+                           dark:hover:bg-neutral-800/50">
+
+                                            <!-- Code -->
+                                            <td class="p-4 font-medium whitespace-nowrap">
+                                                {{ $mk->code }}
+                                            </td>
+
+                                            <!-- Name -->
+                                            <td class="p-4 text-sm leading-relaxed">
+                                                {{ $mk->name }}
+                                            </td>
+
+                                            <!-- SKS Input -->
+                                            <td class="p-4 text-center">
+                                                <div class="mx-auto w-20">
+                                                    <flux:input type="number" min="1" max="6"
+                                                        placeholder="0" class="text-center"
+                                                        wire:model.defer="form.distribusi_mk.{{ $mk->id }}.sks" />
+                                                </div>
+                                            </td>
+
+                                            <!-- Semester Radios -->
+                                            <td class="p-4">
+                                                <flux:radio.group
+                                                    wire:model.live="form.distribusi_mk.{{ $mk->id }}.semester"
+                                                    label="" variant="segmented" size="sm">
+                                                    @foreach (range(1, $listSemeter) as $smst)
+                                                        <flux:radio value="{{ $smst }}"
+                                                            label="{{ $smst }}"
+                                                            wire:key="smst-{{ $smst }}-mk-{{ $mk->id }}" />
+                                                    @endforeach
+                                                </flux:radio.group>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
+
 
                     </x-card.content>
                 </x-card>

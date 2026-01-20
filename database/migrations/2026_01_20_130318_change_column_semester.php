@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('rps', function (Blueprint $table) {
-            // $table->enum('status', ['draft', 'submitted','published','rejected'])->default('draft')->after('learning_experience');
+        Schema::table('beban_ajar_dosens', function (Blueprint $table) {
+            $table->integer('semester')->change();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rps', function (Blueprint $table) {
-            // $table->dropColumn('status');
+        Schema::table('beban_ajar_dosens', function (Blueprint $table) {
+            $table->string('semester')->change();
         });
     }
 };

@@ -6,7 +6,7 @@
             <x-ui.table.header title="Capaian Pembelajaran Lulusan" wire-search="search">
 
                 <x-slot name="filter">
-                    @can('filter', [App\Models\Matakuliah::class, ['Kaprodi','Dosen']])
+                    @can('filter', [App\Models\Matakuliah::class, ['Kaprodi', 'Dosen']])
                         <flux:dropdown>
                             <flux:button icon:trailing="chevron-down">Program Studi</flux:button>
 
@@ -29,7 +29,8 @@
                         <flux:menu>
                             <flux:menu.checkbox.group wire:model.change="filter.semester">
                                 @foreach (range(1, $jmlSemester) as $sm)
-                                    <flux:menu.checkbox value="{{ $sm }}" keep-open>Semester {{ $sm }}</flux:menu.checkbox>
+                                    <flux:menu.checkbox value="{{ $sm }}" keep-open>Semester
+                                        {{ $sm }}</flux:menu.checkbox>
                                 @endforeach
                             </flux:menu.checkbox.group>
                             <flux:menu.separator />
@@ -48,7 +49,7 @@
             </x-ui.table.header>
             @php
                 $showAction = Gate::allows('create', [App\Models\Matakuliah::class, ['Kaprodi']]);
-                $columnHeaders = ['No', 'Program Studi', 'Kode MK', 'Nama MK', 'SKS', 'Semester', 'Jenis', 'Deskripsi'];
+                $columnHeaders = ['No', 'Program Studi', 'Kode MK', 'Nama MK', 'Jenis', 'Deskripsi'];
                 if ($showAction) {
                     unset($columnHeaders[1]);
                 }
@@ -64,8 +65,8 @@
                         @endif
                         <td class="p-4">{{ $row->code }}</td>
                         <td class="p-4">{{ $row->name }}</td>
-                        <td class="p-4">{{ $row->sks }}</td>
-                        <td class="p-4">{{ $row->semester }}</td>
+                        {{-- <td class="p-4">{{ $row->sks }}</td>
+                        <td class="p-4">{{ $row->semester }}</td> --}}
                         <td class="p-4">{{ $row->jenis }}</td>
                         <td class="p-4">{{ $row->description }}</td>
                         <x-ui.table.action edit="openEdit({{ $row->id }})"
@@ -82,18 +83,14 @@
 
 
     @if ($showCreate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.matakuliah.create-update wire:key="create" />
-            </div>
+        <div class="w-full max-w-4xl md:max-w-5xl lg:max-w-4xl xl:max-w-3xl mx-auto sm:px-6 lg:px-8 mt-2">
+            <livewire:master.matakuliah.create-update wire:key="create" />
         </div>
     @endif
 
     @if ($showUpdate)
-        <div class="grid grid-cols-6 grid-rows-1 gap-4 mt-2">
-            <div class="col-span-2 col-start-3">
-                <livewire:master.matakuliah.create-update wire:key="update-{{ $selectedId }}" :id="$selectedId" />
-            </div>
+        <div class="w-full max-w-4xl md:max-w-5xl lg:max-w-4xl xl:max-w-3xl mx-auto sm:px-6 lg:px-8 mt-2">
+            <livewire:master.matakuliah.create-update wire:key="update-{{ $selectedId }}" :id="$selectedId" />
         </div>
     @endif
     <x-ui.forms.sample-data max="15" min="1">

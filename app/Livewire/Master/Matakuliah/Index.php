@@ -118,8 +118,8 @@ class Index extends BaseTable
                             'code' => 'MK-' . strtoupper($faker->unique()->bothify('???###')),
                             'name' => $faker->words(3, true),
                             'description' => $faker->sentence(15),
-                            'semester' => (int) $semester,
-                            'sks' => $faker->numberBetween(1, 4),
+                            // 'semester' => (int) $semester,
+                            // 'sks' => $faker->numberBetween(1, 4),
                             'jenis' => $faker->randomElement(['T', 'P']),
                         ]);
 

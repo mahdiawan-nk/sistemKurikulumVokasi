@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Matakuliah;
 use App\Models\Kurikulum;
 use App\Models\RealisasiPengajaran;
+use App\Models\BebanAjarDosen;
 class Header extends Component
 {
     public $listMk = [];
@@ -35,6 +36,7 @@ class Header extends Component
     public $selectedId = null;
     public $isEdit = false;
     public $isView = false;
+    public $dosenIdActive = null;
     protected $listeners = ['requestFormData'];
 
     // public function editData($id)
@@ -102,6 +104,13 @@ class Header extends Component
         return $listMk;
     }
 
+    protected function getListBebanAjar(){
+        $getBebanAjar = BebanAjarDosen::query()
+            ->where('dosen_id', $this->dosenIdActive)
+            ->get()->pluck('matakuliah_id')->toArray();
+        return $getBebanAjar;
+    }
+
     protected function getListMatakuliah()
     {
 
@@ -111,7 +120,8 @@ class Header extends Component
                 $q->whereHas('programStudis', function ($q) {
                     $q->where('program_studis.id', $this->activeProdi);
                 });
-            });
+            })
+            ->whereIn('id', $this->getListBebanAjar());
     }
     protected function setFilterProdi(): void
     {
@@ -128,6 +138,8 @@ class Header extends Component
             $this->form['dosen_id'] = auth()->user()->dosenId();
             $this->activeDosenName = auth()->user()->dosenName();
             $this->activeProdiName = $programStudi?->name;
+            $this->dosenIdActive = auth()->user()->dosenId();
+
             return;
         }
 

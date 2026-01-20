@@ -51,7 +51,7 @@ abstract class BasePolicy
 
         // Ambil dari database
         try {
-            $roles = DB::table('user_roles')->pluck('role')->toArray();
+            $roles = DB::table('user_roles')->pluck('name')->toArray();
         } catch (\Throwable $e) {
             // Jika terjadi error DB → fallback return empty
             return $this->resolvedAllowedRoles = [];

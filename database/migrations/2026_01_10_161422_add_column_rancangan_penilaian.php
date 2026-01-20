@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('rps_pertemuans', function (Blueprint $table) {
-            $table->json('rancangan_penilaian')->nullable()->after('bobots');
+            // $table->json('rancangan_penilaian')->nullable()->after('bobots');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('rps_pertemuans', function (Blueprint $table) {
-            $table->dropColumn('rancangan_penilaian');
+            // $table->dropColumn('rancangan_penilaian');
         });
     }
 };

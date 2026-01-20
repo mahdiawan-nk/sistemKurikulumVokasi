@@ -5,11 +5,15 @@ namespace App\Livewire\PerangkatAjar\Rps\Section;
 use Livewire\Component;
 use App\Models\Matakuliah;
 use App\Models\Kurikulum;
+use App\Models\BebanAjarDosen;
+
 use Livewire\Attributes\On;
 class IdentitasRps extends Component
 {
     public $listMk = [];
     public $activeProdi = null;
+    public $dosenIdActive = null;
+
     public $activeProdiName = null;
     public $activeDosenName = null;
     public $indentitasMk = [];
@@ -40,6 +44,14 @@ class IdentitasRps extends Component
 
     }
 
+    protected function getListBebanAjar()
+    {
+        $getBebanAjar = BebanAjarDosen::query()
+            ->where('dosen_id', $this->dosenIdActive)
+            ->get()->pluck('matakuliah_id')->toArray();
+        return $getBebanAjar;
+    }
+
     protected function getListMatakuliah()
     {
 
@@ -49,7 +61,8 @@ class IdentitasRps extends Component
                 $q->whereHas('programStudis', function ($q) {
                     $q->where('program_studis.id', $this->activeProdi);
                 });
-            });
+            })
+            ->whereIn('id', $this->getListBebanAjar());
     }
     protected function setFilterProdi(): void
     {
@@ -66,6 +79,7 @@ class IdentitasRps extends Component
             $this->form['dosen_id'] = auth()->user()->dosenId();
             $this->activeDosenName = auth()->user()->dosenName();
             $this->activeProdiName = $programStudi?->name;
+            $this->dosenIdActive = auth()->user()->dosenId();
             return;
         }
 

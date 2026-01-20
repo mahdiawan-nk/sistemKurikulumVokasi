@@ -48,7 +48,7 @@
                 </a>
             </li>
 
-            @if (!in_array(session('active_role'), ['Akademik', 'Dosen']))
+            @if (!in_array(session('active_role'), [ 'Dosen']))
                 <li>
                     <a href="{{ route('master.pl.index') }}" wire:navigate class="@activeClass(['master.*']) nav-item">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

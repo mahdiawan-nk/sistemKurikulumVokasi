@@ -60,18 +60,20 @@ class Index extends BaseTable
             $this->filter['status']= 'published';
             return;
         }
-        if(session('active_role') == 'BPM'){
-            $this->filter['status']= ['published','approved_direktur','archived','submitted'];
+        $role = session('active_role');
+        $inArray = ['Kaprodi', 'WADIR 1', 'Direktur', 'BPM'];
+        if(in_array($role, $inArray)){
+            $this->filter['status']= ['published','approved_direktur','approved_wadir','approved_bpm','archived','submitted'];
             return;
         }
-        if(session('active_role') == 'WADIR 1'){
-            $this->filter['status']= ['submitted','published','archived'];
-            return;
-        }
-        if(session('active_role') == 'Direktur'){
-            $this->filter['status']= ['published','approved_wadir','archived','submitted'];
-            return;
-        }
+        // if(session('active_role') == 'WADIR 1'){
+        //     $this->filter['status']= ['submitted','published','archived'];
+        //     return;
+        // }
+        // if(session('active_role') == 'Direktur'){
+        //     $this->filter['status']= ['published','approved_wadir','archived','submitted'];
+        //     return;
+        // }
     }
 
     public function confirmDelete(): void

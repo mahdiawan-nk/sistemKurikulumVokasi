@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('rps', function (Blueprint $table) {
-            // $table->enum('status', ['draft', 'submitted','published','rejected'])->default('draft')->after('learning_experience');
+        Schema::table('matakuliahs', function (Blueprint $table) {
+            // $table->string('sks')->nullable()->change();
+            // $table->string('semester')->nullable()->change();
+
         });
     }
 
@@ -21,8 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rps', function (Blueprint $table) {
-            // $table->dropColumn('status');
+        Schema::table('matakuliahs', function (Blueprint $table) {
+            // $table->string('sks')->change();
+            // $table->string('semester')->change();
         });
     }
 };

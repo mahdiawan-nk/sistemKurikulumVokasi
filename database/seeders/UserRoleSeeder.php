@@ -13,11 +13,11 @@ class UserRoleSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            [
-                'name' => 'Superadmin',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            // [
+            //     'name' => 'Superadmin',
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            // ],
             [
                 'name' => 'Akademik',
                 'created_at' => now(),
