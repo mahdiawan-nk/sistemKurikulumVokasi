@@ -10,7 +10,7 @@
     <div
         class="flex flex-col justify-between rounded-xl bg-white dark:bg-gray-800
            border border-gray-100 dark:border-gray-700 p-5 shadow-sm
-           hover:shadow-md transition">
+           hover:shadow-md transition w-1/2">
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">

@@ -23,6 +23,7 @@ class CradStatistik extends Component
     public array $statsMatakuliah = [];
 
     public ?int $prodiId = null;
+    public ?int $dosenId = null;
 
     public function mount()
     {
@@ -44,6 +45,7 @@ class CradStatistik extends Component
                     ?->programStudis()
                     ?->first();
             $this->prodiId = $programstudi?->id;
+            $this->dosenId = session('active_role') == 'Dosen' ? auth()->user()->dosenId() : null;
         }
     }
 
@@ -85,13 +87,15 @@ class CradStatistik extends Component
     protected function getTotalKurikulum()
     {
         $status = ['submitted', 'published', 'archived'];
-        $getTotalKurikulum = Kurikulum::count();
+        $getTotalKurikulum = Kurikulum::query()
+            ->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))
+            ->count();
         $details = [];
         foreach ($status as $s) {
             $details[$s] = Kurikulum::where('status', $s)->count();
         }
         $this->statsKurikulum = [
-            'show' => in_array(session('active_role'), ['Dosen', 'Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
+            'show' => in_array(session('active_role'), ['Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
             'title' => 'Jumlah Kurikulum',
             'value' => $getTotalKurikulum,
             'details' => $details
@@ -100,7 +104,10 @@ class CradStatistik extends Component
 
     protected function getTotalPerangkatAjar()
     {
-        $getTotalKontrak = KontrakKuliah::count();
+        $getTotalKontrak = KontrakKuliah::query()
+            ->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))
+            ->when($this->dosenId, fn($q) => $q->where('dosen_id', $this->dosenId))
+            ->count();
         $getTotalRps = Rps::count();
         $getTotalRs = RealisasiPengajaran::count();
         $this->statsPerangkatAjar = [
