@@ -145,7 +145,7 @@ class Index extends BaseTable
                     $userInsert[] = [
                         'name' => $item['name'],
                         'email' => $item['email'],
-                        'password' => bcrypt('password123'), // atau random
+                        'password' => bcrypt('12345678'), // atau random
                         'created_at' => $now,
                         'updated_at' => $now,
                     ];
