@@ -266,7 +266,6 @@ class CreateUpdate extends BaseForm
                 $this->form['bk_mk'] = [];
                 $this->listBk = $this->getBahanKajiansProperty();
                 $this->listMk = $this->getMatakuliahsProperty();
-                $this->listMkOption = $this->getMaktulSelectProperty();
                 // foreach ($this->listBk as $b) {
                 //     $this->form['bk_mk'][$b->id] = [];
                 // }
@@ -286,7 +285,6 @@ class CreateUpdate extends BaseForm
                 $this->form['mk_cpl'] = [];
                 $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
                 $this->listMk = $this->getMatakuliahsProperty();
-                $this->listMkOption = $this->getMaktulSelectProperty();
 
                 foreach ($this->listMk as $mk) {
                     $this->form['mk_cpl'][$mk->id] = [];
@@ -296,7 +294,6 @@ class CreateUpdate extends BaseForm
                 $this->form['cpmk_mk'] = [];
                 $this->listCpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
                 $this->listMk = $this->getMatakuliahsProperty();
-                $this->listMkOption = $this->getMaktulSelectProperty();
 
                 foreach ($this->listMk as $mk) {
                     $this->form['cpmk_mk'][$mk->id] = [];
@@ -307,7 +304,6 @@ class CreateUpdate extends BaseForm
                 $this->listCpl = $this->getCapaianPembelajaranLulusansProperty();
                 $this->listBk = $this->getBahanKajiansProperty();
                 $this->listMk = $this->getMatakuliahsProperty();
-                $this->listMkOption = $this->getMaktulSelectProperty();
                 break;
             case 8:
                 $this->form['cpl_cpmk_mk'] = [];
@@ -403,52 +399,8 @@ class CreateUpdate extends BaseForm
 
     public function updatedFormProgramStudis($value)
     {
-        // $this->form['programStudis'] = array_filter($this->form['programStudis']);
         $this->form['programStudis'] = (array) $value;
-        // $this->getProfileLulusansProperty();
-        // $this->getMatakuliahsProperty();
-        // $cpls = $this->getCapaianPembelajaranLulusansProperty();
-        // $bk = $this->getBahanKajiansProperty();
-        // $mk = $this->getMatakuliahsProperty();
-        // $cpmk = $this->getCapaianPembelajaranMatakuliahsProperty();
-        // $subcpmk = $this->getSubCapaianPembelajaranMatakuliahsProperty();
-
-        // // reset dan init mapping cpl => []
-        // $this->form['cpl_pl'] = [];
-        // $this->form['bk_cpl'] = [];
-        // $this->form['bk_mk'] = [];
-        // $this->form['cpmk_subcpmk'] = [];
-        // $this->form['mk_cpl'] = [];
-        // $this->form['cpmk_mk'] = [];
-        // $this->form['cpl_bk_mk'] = [];
-        // $this->form['cpl_cpmk_mk'] = [];
-
-        // foreach ($cpls as $cpl) {
-        //     $this->form['cpl_pl'][$cpl->id] = [];
-        //     foreach ($cpmk as $item) {
-        //         $this->form['cpl_cpmk_mk'][$item->id][$cpl->id] = [];
-        //     }
-        // }
-
-        // foreach ($bk as $b) {
-        //     foreach ($cpls as $cpl) {
-        //         $this->form['cpl_bk_mk'][$b->id][$cpl->id] = [];
-
-        //     }
-        // }
-        // foreach ($bk as $b) {
-        //     $this->form['bk_cpl'][$b->id] = [];
-        //     $this->form['bk_mk'][$b->id] = [];
-        // }
-
-        // foreach ($mk as $m) {
-        //     $this->form['mk_cpl'][$m->id] = [];
-
-        // }
-        // foreach ($cpmk as $cpmks) {
-        //     $this->form['cpmk_subcpmk'][$cpmks->id] = [];
-        //     $this->form['cpmk_mk'][$cpmks->id] = [];
-        // }
+        
     }
 
     public function getProfileLulusansProperty()

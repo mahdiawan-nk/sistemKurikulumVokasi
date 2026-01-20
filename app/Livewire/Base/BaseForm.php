@@ -47,8 +47,8 @@ abstract class BaseForm extends Component
                     ?->first()
                     ?->programStudis()
                     ?->first();
-            $this->selectedId = $programStudi?->id;
-            $this->form['programStudis'] = [$this->selectedId];
+            // $this->selectedId = $programStudi?->id;
+            $this->form['programStudis'] = [$programStudi?->id];
             $this->isKaprodi = true;
         }
     }

@@ -896,17 +896,13 @@
                     </p>
 
                     <div class="mt-4 space-y-2">
-                        @foreach ($listMkOption as $mk)
+                        @foreach ($listMk as $mk)
                             <div class="py-3">
                                 @if (filled($tempSelectCplBkMK['bk']['id']) && filled($tempSelectCplBkMK['cpl']['id']))
-                                    <flux:checkbox.group label="{{ $mk['name'] }}">
-                                        @foreach ($mk['options'] as $opt)
-                                            <flux:checkbox wire:key="mk-{{ $opt['id'] }}"
-                                                wire:model.defer="form.cpl_bk_mk.{{ $tempSelectCplBkMK['bk']['id'] }}.{{ $tempSelectCplBkMK['cpl']['id'] }}"
-                                                value="{{ $opt['id'] }}" label="{{ $opt['code'] }}"
-                                                description="Nama MK: {{ $opt['name'] }} | SKS: {{ $opt['sks'] }} | SMT: {{ $opt['semester'] }}" />
-                                        @endforeach
-                                    </flux:checkbox.group>
+                                    <flux:checkbox wire:key="mk-{{ $mk['id'] }}"
+                                        wire:model.defer="form.cpl_bk_mk.{{ $tempSelectCplBkMK['bk']['id'] }}.{{ $tempSelectCplBkMK['cpl']['id'] }}"
+                                        value="{{ $mk['id'] }}" label="{{ $mk['code'] }}"
+                                        description="Nama MK: {{ $mk['name'] }}" />
                                 @endif
                             </div>
                         @endforeach
@@ -971,16 +967,14 @@
                     </p>
 
                     <div class="mt-4 space-y-2">
-                        @foreach ($listMkOption as $mk)
+                        @foreach ($listMk as $mk)
                             <div class="py-3">
                                 @if (filled($tempSelectCplCpmkMK['cpmk']['id']) && filled($tempSelectCplCpmkMK['cpl']['id']))
                                     <flux:checkbox.group label="{{ $mk['name'] }}">
-                                        @foreach ($mk['options'] as $opt)
-                                            <flux:checkbox wire:key="mk-{{ $opt['id'] }}"
-                                                wire:model.defer="form.cpl_cpmk_mk.{{ $tempSelectCplCpmkMK['cpmk']['id'] }}.{{ $tempSelectCplCpmkMK['cpl']['id'] }}"
-                                                value="{{ $opt['id'] }}" label="{{ $opt['code'] }}"
-                                                description="Nama MK: {{ $opt['name'] }} | SKS: {{ $opt['sks'] }} | SMT: {{ $opt['semester'] }}" />
-                                        @endforeach
+                                        <flux:checkbox wire:key="mk-{{ $opt['id'] }}"
+                                            wire:model.defer="form.cpl_cpmk_mk.{{ $tempSelectCplCpmkMK['cpmk']['id'] }}.{{ $tempSelectCplCpmkMK['cpl']['id'] }}"
+                                            value="{{ $opt['id'] }}" label="{{ $opt['code'] }}"
+                                            description="Nama MK: {{ $opt['name'] }} | SKS: {{ $opt['sks'] }}" />
                                     </flux:checkbox.group>
                                 @endif
                             </div>
@@ -1006,7 +1000,7 @@
                 </div>
             </div>
         </div>
-    </div>
+        {{-- </div>
     <div x-data="{ modalIsOpen: $wire.entangle('showModalBkMK') }">
         <div x-cloak x-show="modalIsOpen" x-transition.opacity.duration.200ms x-trap.inert.noscroll="modalIsOpen"
             x-on:keydown.esc.window="modalIsOpen = true" class="fixed inset-0 z-40 bg-black/30 " role="dialog"
@@ -1088,9 +1082,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    <div x-data="{ modalIsOpen: $wire.entangle('showModalCpmkMK') }">
+        {{-- <div x-data="{ modalIsOpen: $wire.entangle('showModalCpmkMK') }">
         <div x-cloak x-show="modalIsOpen" x-transition.opacity.duration.200ms x-trap.inert.noscroll="modalIsOpen"
             x-on:keydown.esc.window="modalIsOpen = false" class="fixed inset-0 z-40 bg-black/30 " role="dialog"
             aria-modal="true">
@@ -1170,5 +1164,5 @@
                 </div>
             </div>
         </div>
+    </div> --}}
     </div>
-</div>
