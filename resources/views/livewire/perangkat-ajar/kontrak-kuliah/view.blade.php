@@ -64,7 +64,7 @@
                                 <div class="flex gap-2">
                                     {{-- PERUMUSAN --}}
                                     @if ($approval->role_proses === 'perumusan' && $approval->status === 'pending' && session('active_role') == 'Dosen')
-                                        <flux:button size="sm" color="blue" wire:click="openDialog({{ $approval->id }})"
+                                        <flux:button size="sm" color="blue" variant="primary" wire:click="openDialog({{ $approval->id }})"
                                             wire:loading.attr="disabled">
                                             Submit
                                         </flux:button>

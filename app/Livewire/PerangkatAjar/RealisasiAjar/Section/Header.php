@@ -78,6 +78,8 @@ class Header extends Component
     }
     public function mount(?int $selectedId = null, bool $isEdit = false, bool $isView = false)
     {
+        $this->setFilterProdi();
+
         if ($selectedId && ($isEdit || $isView)) {
             $this->selectedId = $selectedId;
             $this->isEdit = $isEdit;
@@ -85,7 +87,6 @@ class Header extends Component
             $this->openEdit();
         }
 
-        $this->setFilterProdi();
         $this->listMk = $this->resolveValueListMk();
 
     }
@@ -159,6 +160,7 @@ class Header extends Component
             $this->resetMatakuliahData();
             return;
         }
+        // dd($this->getListBebanAjar(),$this->activeProdi);
         $dataMatakuliah = $this->getListMatakuliah()->find($this->form['matakuliah_id']);
         $this->indentitasMk = [
             'program_studi_name' => $dataMatakuliah->programStudis->first()->name,

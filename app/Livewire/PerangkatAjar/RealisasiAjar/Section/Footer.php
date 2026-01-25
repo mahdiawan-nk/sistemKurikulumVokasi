@@ -68,25 +68,69 @@ class Footer extends Component
 
     public function openEdit()
     {
-        $metodeData = RealisasiPengajaranMetode::where('realisasi_id', $this->selectedId)->get();
-        $evaluasiData = RealisasiPengajaranEvaluasi::where('realisasi_id', $this->selectedId)->first();
-        $referensiData = RealisasiPengajaranReferensi::where('realisasi_id', $this->selectedId)->get();
-        foreach ($metodeData as $metode) {
-            $this->form['metode'][$metode->jenis]['jam'] = $metode->jam;
-        }
-        $this->form['evaluasi']['tugas_persen'] = (int) $evaluasiData->tugas_persen;
-        $this->form['evaluasi']['kuis_persen'] = (int) $evaluasiData->kuis_persen;
-        $this->form['evaluasi']['ujian_persen'] = (int) $evaluasiData->ujian_persen;
+        $this->initRealisasiState();
 
-        foreach ($referensiData as $referensi) {
-            $this->referensi[] = [
-                'uid' => uniqid(),
-                'jenis' => $referensi->jenis,
-                'judul' => $referensi->judul,
-                'penerbit' => $referensi->penerbit,
+        // ======================
+        // METODE
+        // ======================
+        $metodeData = RealisasiPengajaranMetode::where('realisasi_id', $this->selectedId)->get();
+
+        foreach ($metodeData as $metode) {
+            $this->form['metode'][$metode->jenis]['jam'] = (int) $metode->jam;
+        }
+
+        // ======================
+        // EVALUASI
+        // ======================
+        $evaluasiData = RealisasiPengajaranEvaluasi::where('realisasi_id', $this->selectedId)->first();
+
+        if ($evaluasiData) {
+            $this->form['evaluasi'] = [
+                'tugas_persen' => (int) $evaluasiData->tugas_persen,
+                'kuis_persen' => (int) $evaluasiData->kuis_persen,
+                'ujian_persen' => (int) $evaluasiData->ujian_persen,
             ];
         }
-        
+
+        // ======================
+        // REFERENSI
+        // ======================
+        $referensiData = RealisasiPengajaranReferensi::where('realisasi_id', $this->selectedId)->get();
+
+        if ($referensiData->isNotEmpty()) {
+            $this->referensi = $referensiData->map(fn($ref) => [
+                'uid' => uniqid(),
+                'jenis' => $ref->jenis,
+                'judul' => $ref->judul,
+                'penerbit' => $ref->penerbit,
+            ])->toArray();
+        }
+    }
+
+
+    protected function initRealisasiState(): void
+    {
+        $this->form['metode'] = [
+            'kuliah' => ['jam' => 0],
+            'tutorial' => ['jam' => 0],
+            'laboratorium' => ['jam' => 0],
+        ];
+
+        $this->form['evaluasi'] = [
+            'tugas_persen' => 0,
+            'kuis_persen' => 0,
+            'ujian_persen' => 0,
+        ];
+
+        // Minimal 1 row referensi
+        $this->referensi = [
+            [
+                'uid' => uniqid(),
+                'jenis' => '',
+                'judul' => '',
+                'penerbit' => '',
+            ]
+        ];
     }
 
     public function mount(int $selectedId = null, bool $isEdit = false, bool $isView = false)

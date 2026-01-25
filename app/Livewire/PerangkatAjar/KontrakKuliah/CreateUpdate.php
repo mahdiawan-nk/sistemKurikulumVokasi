@@ -8,6 +8,8 @@ use Livewire\Attributes\Layout;
 use App\Models\Matakuliah as MK;
 use App\Models\BebanAjarDosen;
 use App\Models\KontrakKuliah;
+use App\Services\KontrakKuliahService;
+use App\Services\UserContextService;
 #[Title('Kontrak Kuliah')]
 #[Layout('components.layouts.sidebar')]
 class CreateUpdate extends Component
@@ -150,7 +152,7 @@ class CreateUpdate extends Component
         $this->dispatch('updated-editor', model: 'mk_cpmk');
     }
 
-    public function save()
+    public function save(KontrakKuliahService $service)
     {
         $this->validate(
             [
@@ -179,6 +181,7 @@ class CreateUpdate extends Component
         $dataKontrak = [
             'dosen_id' => auth()->user()->dosens()->first()->id,
             'matakuliah_id' => $this->matakuliahId,
+            'prodi_id'=> $this->activeProdi,
             'tahun_akademik' => $this->tahun_akademik,
             'kelas' => $this->kelas,
             'total_jam' => $this->totalJam,
@@ -188,13 +191,8 @@ class CreateUpdate extends Component
             'kriteria_penilaian' => $this->kriteria_penilaian,
             'tata_tertib' => $this->tata_tertib
         ];
-        // dump($dataKontrak);
-        if ($this->selectedId != null) {
-            KontrakKuliah::find($this->selectedId)->update($dataKontrak);
-        } else {
 
-            KontrakKuliah::create($dataKontrak);
-        }
+        $service->createUpdateWithApprovals($dataKontrak,$this->selectedId);
 
         $this->redirect(route('perangkat-ajar.kontrak-kuliah.index'), navigate: true);
     }

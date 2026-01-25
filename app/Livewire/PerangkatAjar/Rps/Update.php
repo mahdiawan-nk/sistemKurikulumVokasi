@@ -71,10 +71,111 @@ class Update extends Component
         $this->setFilterProdi();
         $this->listMk = $this->getListMatakuliah()->get();
         // Load RPS beserta relasinya
-        $this->rps = Rps::with(['pertemuans', 'referensis', 'penilaians'])->findOrFail($id);
-
+        // $this->rps = Rps::with(['pertemuans', 'referensis', 'penilaians'])->findOrFail($id);
+        $this->initRpsState();
+        $this->loadRps($id);
         // Map master form
+        // $this->form = [
+        //     'matakuliah_id' => $this->rps->matakuliah_id,
+        //     'program_studi_id' => $this->rps->program_studi_id,
+        //     'kelas' => $this->rps->class,
+        //     'dosen_id' => $this->rps->dosen_id,
+        //     'tahun_akademik' => $this->rps->academic_year,
+        //     'revisi' => $this->rps->revision,
+        //     'metode_pembelajaran' => $this->rps->learning_method,
+        //     'pengalaman_belajar_mahasiswa' => $this->rps->learning_experience,
+        //     'cpmks' => $this->rps->cpmk_bobot
+        // ];
+
+        // // Map pertemuan
+        // $this->pertemuans = $this->rps->pertemuans->map(function ($p) {
+        //     $formatRancanganPenilaian = [
+        //         'jenis' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['jenis'] : '',
+        //         'bentuk' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['bentuk'] : '',
+        //         'bobot' => (int) $p?->rancangan_penilaian ? $p->rancangan_penilaian['bobot'] : 0,
+        //         'topik' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['topik'] : '',
+        //     ];
+        //     return [
+        //         'show' => true,
+        //         'id' => $p->id,
+        //         'pertemuan_ke' => $p->pertemuan_ke,
+        //         'materi_ajar' => $p->materi_ajar,
+        //         'indikator' => $p->indikator,
+        //         'bentuk_pembelajaran' => $p->bentuk_pembelajaran,
+        //         'pemberian_tugas' => $p->pemberian_tugas,
+        //         'selected_bobot_index' => null,
+        //         'cpmk_id' => $p->cpmk_id,
+        //         'alokasi' => $p->alokasi,
+        //         'bobots' => $p->bobots,
+        //         'rancangan_penilaian' => $formatRancanganPenilaian,
+        //     ];
+        // })->toArray();
+
+        // Map referensi
+        foreach ($this->rps->referensis as $ref) {
+            $this->referensi[$ref->jenis][] = $ref->deskripsi;
+        }
+
+
+        $this->initPenilaian();
+        $this->loadPenilaianFromDb();
+        $this->updating('form.matakuliah_id', $this->form['matakuliah_id']);
+    }
+    protected function initRpsState(): void
+    {
+        // Form default
         $this->form = [
+            'matakuliah_id' => null,
+            'program_studi_id' => null,
+            'kelas' => '',
+            'dosen_id' => null,
+            'tahun_akademik' => '',
+            'revisi' => '',
+            'metode_pembelajaran' => '',
+            'pengalaman_belajar_mahasiswa' => '',
+            'cpmks' => [], // JSON safe
+        ];
+
+        // Minimal 1 pertemuan row
+        // Referensi by jenis
+        // $this->referensi = [
+        //     'buku' => [],
+        //     'jurnal' => [],
+        //     'web' => [],
+        // ];
+    }
+    protected function emptyPertemuanRow(): array
+    {
+        return [
+            'show' => true,
+            'id' => null,
+            'pertemuan_ke' => null,
+            'materi_ajar' => '',
+            'indikator' => '',
+            'bentuk_pembelajaran' => '',
+            'pemberian_tugas' => '',
+            'selected_bobot_index' => null,
+            'cpmk_id' => null,
+            'alokasi' => 0,
+            'bobots' => [],
+            'rancangan_penilaian' => [
+                'jenis' => '',
+                'bentuk' => '',
+                'bobot' => 0,
+                'topik' => '',
+            ],
+        ];
+    }
+
+    protected function loadRps(int $id): void
+    {
+        $this->rps = Rps::with(['pertemuans', 'referensis', 'penilaians'])
+            ->findOrFail($id);
+
+        // =====================
+        // FORM
+        // =====================
+        $this->form = array_merge($this->form, [
             'matakuliah_id' => $this->rps->matakuliah_id,
             'program_studi_id' => $this->rps->program_studi_id,
             'kelas' => $this->rps->class,
@@ -83,44 +184,76 @@ class Update extends Component
             'revisi' => $this->rps->revision,
             'metode_pembelajaran' => $this->rps->learning_method,
             'pengalaman_belajar_mahasiswa' => $this->rps->learning_experience,
-            'cpmks' => $this->rps->cpmk_bobot
+            'cpmks' => is_array($this->rps->cpmk_bobot)
+                ? $this->rps->cpmk_bobot
+                : json_decode($this->rps->cpmk_bobot ?? '[]', true),
+        ]);
+
+        // =====================
+        // PERTEMUAN
+        // =====================
+        if ($this->rps->pertemuans->isNotEmpty()) {
+            $this->pertemuans = $this->rps->pertemuans
+                ->map(fn($p) => $this->mapPertemuan($p))
+                ->toArray();
+        }
+        $this->addPertemuan();
+
+        // =====================
+        // REFERENSI
+        // =====================
+        // foreach ($this->rps->referensis as $ref) {
+        //     $this->referensi[$ref->jenis][] = $ref->deskripsi;
+        // }
+    }
+
+    protected function mapPertemuan($p): array
+    {
+        return [
+            'show' => true,
+            'id' => $p->id,
+            'pertemuan_ke' => $p->pertemuan_ke,
+            'materi_ajar' => $p->materi_ajar,
+            'indikator' => $p->indikator,
+            'bentuk_pembelajaran' => $p->bentuk_pembelajaran,
+            'pemberian_tugas' => $p->pemberian_tugas,
+            'selected_bobot_index' => null,
+            'cpmk_id' => $p->cpmk_id,
+            'alokasi' => $p->alokasi,
+            'bobots' => $p->bobots ?? [],
+            'rancangan_penilaian' => [
+                'jenis' => data_get($p, 'rancangan_penilaian.jenis', ''),
+                'bentuk' => data_get($p, 'rancangan_penilaian.bentuk', ''),
+                'bobot' => (int) data_get($p, 'rancangan_penilaian.bobot', 0),
+                'topik' => data_get($p, 'rancangan_penilaian.topik', ''),
+            ],
         ];
+    }
 
-        // Map pertemuan
-        $this->pertemuans = $this->rps->pertemuans->map(function ($p) {
-            $formatRancanganPenilaian = [
-                'jenis' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['jenis'] : '',
-                'bentuk' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['bentuk'] : '',
-                'bobot' => (int) $p?->rancangan_penilaian ? $p->rancangan_penilaian['bobot'] : 0,
-                'topik' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['topik'] : '',
-            ];
-            return [
-                'show' => true,
-                'id' => $p->id,
-                'pertemuan_ke' => $p->pertemuan_ke,
-                'materi_ajar' => $p->materi_ajar,
-                'indikator' => $p->indikator,
-                'bentuk_pembelajaran' => $p->bentuk_pembelajaran,
-                'pemberian_tugas' => $p->pemberian_tugas,
-                'selected_bobot_index' => null,
-                'cpmk_id' => $p->cpmk_id,
-                'alokasi' => $p->alokasi,
-                'bobots' => $p->bobots,
-                'rancangan_penilaian' => $formatRancanganPenilaian,
-            ];
-        })->toArray();
 
-        // Map referensi
-        foreach ($this->rps->referensis as $ref) {
-            $this->referensi[$ref->jenis][] = $ref->deskripsi;
+    protected function initPenilaian(): void
+    {
+        $this->penilaian = [];
+
+        foreach ($this->kelompokPenilaian as $group => $items) {
+            foreach ($items as $key) {
+                $this->penilaian[$key] = [
+                    'persentase' => 0,
+                    'cpmk' => []
+                ];
+            }
         }
+    }
 
-        // Map penilaian
+    protected function loadPenilaianFromDb(): void
+    {
         foreach ($this->rps->penilaians as $pen) {
-            $this->penilaian[$pen->jenis_penilaian]['persentase'] = $pen->persentase_penilaian;
-            $this->penilaian[$pen->jenis_penilaian]['cpmk'][$pen->cpmk_id] = $pen->bobot_cpmk;
+            $this->penilaian[$pen->jenis_penilaian]['persentase']
+                = $pen->persentase_penilaian ?? 0;
+
+            $this->penilaian[$pen->jenis_penilaian]['cpmk'][$pen->cpmk_id]
+                = $pen->bobot_cpmk ?? 0;
         }
-        $this->updating('form.matakuliah_id', $this->form['matakuliah_id']);
     }
 
     protected function getListMatakuliah()
@@ -336,6 +469,7 @@ class Update extends Component
     public function addPertemuan()
     {
         $this->pertemuans[] = [
+            'show'=>true,
             'pertemuan_ke' => count($this->pertemuans) + 1,
             'materi_ajar' => '',
             'indikator' => '',

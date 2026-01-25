@@ -105,7 +105,17 @@ class IdentitasRps extends Component
             'programStudiId' => $this->form['program_studi_id'],
             'kurikulumId' => $this->dataKurikulum['id'] ?? null,
         ];
+        $this->setKelasAndTakdFromBebanAjar($this->form['matakuliah_id']);
         $this->dispatch('matakuliahUpdated', $params);
+    }
+
+    protected function setKelasAndTakdFromBebanAjar(int $mkId){
+        $bebanAjar = BebanAjarDosen::query()
+            ->where('dosen_id', $this->dosenIdActive)
+            ->where('matakuliah_id', $mkId)
+            ->first();
+        $this->form['kelas'] = $bebanAjar->kelas;
+        $this->form['tahun_akademik'] = $bebanAjar->tahun_ajaran;
     }
     protected function resetMatakuliahData(): void
     {

@@ -28,7 +28,7 @@
     <x-layouts.navbar />
 
     {{-- Main content --}}
-    <main class="flex-1 bg-gray-50 dark:bg-zinc-900">
+    <main class="flex-1 bg-white dark:bg-zinc-900">
         
         {{ $slot }}
     </main>

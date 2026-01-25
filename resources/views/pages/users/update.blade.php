@@ -20,7 +20,7 @@
             <div class="flex flex-wrap gap-4 *:gap-x-2">
                 @foreach ($listRoles as $item)
                     <flux:checkbox wire:model="role" value="{{ $item->id }}" label="{{ $item->name }}"
-                        wire:key="role-{{ $item->id }}" />
+                        wire:key="role-{{ $item->id }}"/>
                 @endforeach
             </div>
 

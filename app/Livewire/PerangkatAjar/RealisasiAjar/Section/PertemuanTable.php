@@ -15,25 +15,22 @@ class PertemuanTable extends Component
     public $selectedId = null;
     protected $listeners = ['requestFormData'];
 
-    // public function editData($id)
-    // {
-    //     $this->selectedId = $id;
-    //     $this->isEdit = true;
-    //     $this->openEdit();
-    // }
-
     public function openEdit()
     {
         $getData = RealisasiPengajaranDetail::where('realisasi_id', $this->selectedId)->get();
-        foreach ($getData as $data) {
-            $this->pertemuans[] = [
-                'pertemuan_ke' => $data->pertemuan_ke,
-                'tanggal' => Carbon::parse($data->tanggal)->format('Y-m-d'),
-                'pokok_bahasan' => $data->pokok_bahasan,
-                'jam' => $data->jam,
-                'paraf' => $data->paraf,
-            ];
+        if ($getData) {
+            foreach ($getData as $data) {
+                $this->pertemuans[] = [
+                    'pertemuan_ke' => $data->pertemuan_ke,
+                    'tanggal' => Carbon::parse($data->tanggal)->format('Y-m-d'),
+                    'pokok_bahasan' => $data->pokok_bahasan,
+                    'jam' => $data->jam,
+                    'paraf' => $data->paraf,
+                ];
+            }
         }
+        $this->addPertemuan();
+
     }
 
 

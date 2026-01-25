@@ -261,19 +261,28 @@ class Index extends BaseTable
 
         DB::transaction(function () {
             foreach ($this->previewData as $row) {
-                BebanAjarDosen::updateOrCreate([
-                    'dosen_id' => $row['dosen_id'],
-                    'matakuliah_id' => $row['matakuliah_id'],
-                    'taught_prodi_id' => $row['taught_prodi_id'],
-                    'home_prodi_id' => $row['home_prodi_id'],
-                ], [
-                    'semester' => $row['semester'],
-                    'tahun_ajaran' => $row['tahun_ajaran'],
-                    'kelas' => $row['kelas'],
-                    'sks_beban' => $row['sks_beban'],
-                    'peran' => $row['peran'],
-                ]);
 
+                // 1. UPSERT BEBAN AJAR
+                $bebanAjar = BebanAjarDosen::updateOrCreate(
+                    [
+                        'dosen_id' => $row['dosen_id'],
+                        'matakuliah_id' => $row['matakuliah_id'],
+                        'taught_prodi_id' => $row['taught_prodi_id'],
+                        'home_prodi_id' => $row['home_prodi_id'],
+                    ],
+                    [
+                        'semester' => $row['semester'],
+                        'tahun_ajaran' => $row['tahun_ajaran'],
+                        'kelas' => $row['kelas'],
+                        'sks_beban' => $row['sks_beban'],
+                        'peran' => $row['peran'],
+                    ]
+                );
+
+                // 2. CREATE / ENSURE TURUNAN
+                $this->ensureRps($row);
+                $this->ensureKontrakKuliah($row);
+                $this->ensureRealisasiKuliah($row);
             }
 
             $this->successCount = count($this->previewData);
@@ -281,5 +290,66 @@ class Index extends BaseTable
 
         $this->previewData = [];
     }
+
+
+    protected function ensureRps(array $row): void
+    {
+        Rps::firstOrCreate(
+            [
+                'matakuliah_id' => $row['matakuliah_id'],
+                'program_studi_id' => $row['home_prodi_id'],
+                'class' => $row['kelas'],
+                'dosen_id' => $row['dosen_id'],
+                'academic_year' => $row['tahun_ajaran'],
+            ],
+            [
+                'revision' => 1,
+                'learning_method' => '',
+                'learning_experience' => '',
+                'cpmk_bobot' => [],
+            ]
+        );
+    }
+
+
+    protected function ensureKontrakKuliah(array $row): void
+    {
+        KontrakKuliah::firstOrCreate(
+            [
+                'prodi_id' => $row['home_prodi_id'],
+                'matakuliah_id' => $row['matakuliah_id'],
+                'dosen_id' => $row['dosen_id'],
+                'tahun_akademik' => $row['tahun_ajaran'],
+                'kelas' => $row['kelas'],
+            ],
+            [
+                'total_jam' => 0,
+                'tujuan_pembelajaran' => '',
+                'strategi_perkuliahan' => '',
+                'materi_pembelajaran' => '',
+                'kriteria_penilaian' => '',
+                'tata_tertib' => '',
+            ]
+        );
+    }
+
+
+    protected function ensureRealisasiKuliah(array $row): void
+    {
+        RealisasiPengajaran::firstOrCreate(
+            [
+                'program_studi_id' => $row['home_prodi_id'],
+                'matakuliah_id' => $row['matakuliah_id'],
+                'dosen_id' => $row['dosen_id'],
+                'tahun_akademik' => $row['tahun_ajaran'],
+                'kelas' => $row['kelas'],
+            ],
+            [
+                'semester' => $row['semester'],
+                'jumlah_sks' => $row['sks_beban'],
+            ]
+        );
+    }
+
 
 }

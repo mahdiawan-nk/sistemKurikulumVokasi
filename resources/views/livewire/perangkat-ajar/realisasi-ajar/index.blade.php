@@ -41,10 +41,7 @@
                     'Created At',
                     'Status',
                 ];
-                $show = Gate::any(
-                    ['update', 'delete'],
-                    [App\Models\RealisasiPengajaran::class, ['Kaprodi', 'Dosen']],
-                );
+                $show = Gate::any(['update', 'delete'], [App\Models\RealisasiPengajaran::class, ['Kaprodi', 'Dosen']]);
                 if ($show) {
                     unset($columnHeaders[1]);
                 }
@@ -85,9 +82,9 @@
                                 @endif
                             @endcan
                             {{-- @can('viewAny', [App\Models\KontrakKuliah::class]) --}}
-                                <flux:button variant="primary" icon="eye"
-                                    :href="route('perangkat-ajar.realisasi-ajar.view', ['id' => $row->id])" wire:navigate
-                                    size="sm" />
+                            <flux:button variant="primary" icon="eye"
+                                :href="route('perangkat-ajar.realisasi-ajar.view', ['id' => $row->id])" wire:navigate
+                                size="sm" />
                             {{-- @endcan --}}
                         </x-ui.table.action>
                     </x-ui.table.row>

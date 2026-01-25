@@ -36,7 +36,7 @@
             <flux:button variant="primary" @click="$dispatch('collapseAll')">Collapse All</flux:button>
         </div>
     </div>
-    <div class="grid grid-cols-5 grid-rows-5 gap-4">
+    <div class="grid grid-cols-5 gap-4">
         <div class="col-span-1">
             <div class="w-full mx-auto">
                 <div
@@ -310,23 +310,4 @@
             </div>
         </form>
     </flux:modal>
-    {{-- <x-modal-card title="Approval Kurikulum" name="cardModal" align="center" persistent>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1">
-            <flux:radio.group wire:model.change="status_approval" label="Status Approval" variant="segmented">
-                <flux:radio label="Approved" value="approved" icon="check" />
-                <flux:radio label="Rejected" value="rejected" icon="x-mark" />
-            </flux:radio.group>
-            @if ($status_approval == 'rejected')
-                <flux:textarea label="Approval notes" placeholder="Alasan Di reject" />
-            @endif
-        </div>
-
-        <x-slot name="footer" class="flex justify-between gap-x-4">
-            <div class="flex gap-x-4">
-                <x-button flat label="Cancel" x-on:click="close" />
-
-                <x-button primary label="Save" wire:click="saveApproval" />
-            </div>
-        </x-slot>
-    </x-modal-card> --}}
 </div>

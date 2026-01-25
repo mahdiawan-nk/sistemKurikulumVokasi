@@ -52,7 +52,7 @@
                         <td class="p-4">{{ $row->academic_year }}</td>
                         <td class="p-4">{{ $row->class }}</td>
                         <td class="p-4">
-                            {{ $row->rpsApprovals()->where('role_proses', 'perumusan')->first()->dosen->name }}</td>
+                            {{ $row->rpsApprovals()?->where('role_proses', 'perumusan')->first()?->dosen?->name }}</td>
                         <td class="p-4">
                             @php
                                 $status = match ($row->status) {

@@ -14,7 +14,7 @@
         <div x-cloak x-show="showSidebar && !isDesktop" x-transition.opacity
             class="fixed inset-0 z-10 bg-black/40 backdrop-blur-sm" @click="showSidebar = false"></div>
 
-        <nav class="fixed md:relative z-20 min-h-screen w-64
+        <nav class="fixed md:relative z-20 min-h-screen w-84
            bg-white dark:bg-gray-900 border-r
            transition-all duration-300
            shrink-0"
@@ -92,7 +92,7 @@
 
                 $menuPerangkatAjar = [
                     [
-                        'name' => 'Beban Aja Kuliah',
+                        'name' => 'Beban Ajar Kuliah',
                         'url' => route('perangkat-ajar.beban-ajar.index'),
                         'active' => request()->routeIs('perangkat-ajar.beban-ajar.*'),
                         'gate' => 'viewAny',
