@@ -26,7 +26,7 @@ class Update extends Component
 
         // Konversi role array -> boolean map
         $this->role = $user->roles->pluck('id')->toArray();
-        $this->inWd1 = TxUserRole::where('role_id', 5)->first()->role_id;
+        // $this->inWd1 = TxUserRole::where('role_id', 5)->first()->role_id;
 
         // dump($this->inWd1);
 
