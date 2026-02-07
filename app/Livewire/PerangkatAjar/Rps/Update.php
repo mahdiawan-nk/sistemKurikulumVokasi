@@ -70,47 +70,8 @@ class Update extends Component
     {
         $this->setFilterProdi();
         $this->listMk = $this->getListMatakuliah()->get();
-        // Load RPS beserta relasinya
-        // $this->rps = Rps::with(['pertemuans', 'referensis', 'penilaians'])->findOrFail($id);
         $this->initRpsState();
         $this->loadRps($id);
-        // Map master form
-        // $this->form = [
-        //     'matakuliah_id' => $this->rps->matakuliah_id,
-        //     'program_studi_id' => $this->rps->program_studi_id,
-        //     'kelas' => $this->rps->class,
-        //     'dosen_id' => $this->rps->dosen_id,
-        //     'tahun_akademik' => $this->rps->academic_year,
-        //     'revisi' => $this->rps->revision,
-        //     'metode_pembelajaran' => $this->rps->learning_method,
-        //     'pengalaman_belajar_mahasiswa' => $this->rps->learning_experience,
-        //     'cpmks' => $this->rps->cpmk_bobot
-        // ];
-
-        // // Map pertemuan
-        // $this->pertemuans = $this->rps->pertemuans->map(function ($p) {
-        //     $formatRancanganPenilaian = [
-        //         'jenis' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['jenis'] : '',
-        //         'bentuk' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['bentuk'] : '',
-        //         'bobot' => (int) $p?->rancangan_penilaian ? $p->rancangan_penilaian['bobot'] : 0,
-        //         'topik' => $p?->rancangan_penilaian ? $p->rancangan_penilaian['topik'] : '',
-        //     ];
-        //     return [
-        //         'show' => true,
-        //         'id' => $p->id,
-        //         'pertemuan_ke' => $p->pertemuan_ke,
-        //         'materi_ajar' => $p->materi_ajar,
-        //         'indikator' => $p->indikator,
-        //         'bentuk_pembelajaran' => $p->bentuk_pembelajaran,
-        //         'pemberian_tugas' => $p->pemberian_tugas,
-        //         'selected_bobot_index' => null,
-        //         'cpmk_id' => $p->cpmk_id,
-        //         'alokasi' => $p->alokasi,
-        //         'bobots' => $p->bobots,
-        //         'rancangan_penilaian' => $formatRancanganPenilaian,
-        //     ];
-        // })->toArray();
-
         // Map referensi
         foreach ($this->rps->referensis as $ref) {
             $this->referensi[$ref->jenis][] = $ref->deskripsi;

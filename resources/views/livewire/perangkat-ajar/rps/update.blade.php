@@ -886,10 +886,10 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-100 dark:bg-gray-800">
                         <tr>
-                            <th class="p-2 border text-left">Teknik Penilaian</th>
-                            <th class="p-2 border text-center w-20">%</th>
+                            <th class="p-2 border text-left w-80">Teknik Penilaian</th>
+                            <th class="p-2 border text-center w-50">%</th>
                             @foreach ($matriksCplCpmk['cpmk'] as $cpmk)
-                                <th class="p-2 border text-center">
+                                <th class="p-2 border text-center w-50">
                                     {{ $cpmk->cpmk->code }}
                                 </th>
                             @endforeach
@@ -908,30 +908,50 @@
 
                             @foreach ($kelompokPenilaian[$group] as $key)
                                 @php
-                                    $totalCpmk = collect($penilaian[$key]['cpmk'] ?? [])->sum();
-                                    $sisa = $penilaian[$key]['persentase'] - $totalCpmk;
+                                    $totalCpmk = collect($penilaian[$key]['cpmk'] ?? [])->sum(fn($v) => (int) $v);
+
+                                    $persentase = (int) ($penilaian[$key]['persentase'] ?? 0);
+                                    $sisa = $persentase - $totalCpmk;
+
+                                    $lockCpmk = $persentase === 0;
+
+                                    // status sisa
+                                    if ($sisa > 0) {
+                                        $sisaClass = 'text-green-600 bg-green-50 dark:bg-green-900/20';
+                                        $sisaLabel = 'Masih tersedia';
+                                    } elseif ($sisa < 0) {
+                                        $sisaClass = 'text-red-600 bg-red-50 dark:bg-red-900/20';
+                                        $sisaLabel = 'Melebihi';
+                                    } else {
+                                        $sisaClass = 'text-gray-600 bg-gray-100 dark:bg-gray-800';
+                                        $sisaLabel = 'Tepat';
+                                    }
                                 @endphp
 
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
                                     {{-- NAMA TEKNIK --}}
-                                    <td class="p-2 border capitalize">
+                                    <td class="p-2 border capitalize flex flex-col">
                                         {{ str_replace('_', ' ', $key) }}
-                                        <div class="text-xs text-gray-500">
-                                            Sisa: {{ $sisa }}%
-                                        </div>
+
+                                        <span
+                                            class="gap-1 mt-1 px-2 py-0.5 w-fit rounded text-xs font-semibold {{ $sisaClass }}">
+                                            {{ $sisaLabel }} ({{ $sisa }}%)
+                                        </span>
                                     </td>
 
                                     {{-- TOTAL PERSENTASE --}}
-                                    <td class="p-2 border text-center font-medium">
-                                        {{ $penilaian[$key]['persentase'] }}%
+                                    <td class="p-2 border text-center">
+                                        <flux:input type="number" min="0" size="xs"
+                                            class="w-16 text-center"
+                                            wire:model.defer="penilaian.{{ $key }}.persentase" />
                                     </td>
 
                                     {{-- INPUT CPMK --}}
                                     @foreach ($matriksCplCpmk['cpmk'] as $cpmkId => $cpmk)
                                         <td class="p-2 border text-center">
                                             <flux:input type="number" min="0" size="xs"
-                                                class="w-16 text-center"
-                                                :max="$sisa + ($penilaian[$key]['cpmk'][$cpmkId] ?? 0)"
+                                                class="w-16 text-center {{ $lockCpmk ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                :max="$sisa + (int)($penilaian[$key]['cpmk'][$cpmkId] ?? 0)"
                                                 wire:model.live="penilaian.{{ $key }}.cpmk.{{ $cpmkId }}" />
                                         </td>
                                     @endforeach
@@ -943,7 +963,9 @@
                         $totalCpmk = [];
 
                         foreach ($matriksCplCpmk['cpmk'] as $cpmkId => $cpmk) {
-                            $totalCpmk[$cpmkId] = collect($penilaian)->sum(fn($item) => $item['cpmk'][$cpmkId] ?? 0);
+                            $totalCpmk[$cpmkId] = collect($penilaian)->sum(function ($item) use ($cpmkId) {
+                                return (float) ($item['cpmk'][$cpmkId] ?? 0);
+                            });
                         }
                     @endphp
                     {{-- FOOTER TOTAL --}}
@@ -951,7 +973,7 @@
                         <tr>
                             <td class="p-2 border">Total</td>
                             <td class="p-2 border text-center">
-                                {{ collect($penilaian)->sum('persentase') }} %
+                                {{ collect($penilaian)->sum(fn($i) => (float) $i['persentase']) }} %
                             </td>
                             @foreach ($matriksCplCpmk['cpmk'] as $cpmkId => $cpmk)
                                 <td class="p-2 border text-center">
@@ -969,7 +991,7 @@
 
     @endif
     <div class="space-y-4 flex justify-end gap-4">
-        <flux:button variant="primary" wire:click="save(true)" >Simpan Dalam Draft</flux:button>
+        <flux:button variant="primary" wire:click="save(true)">Simpan Dalam Draft</flux:button>
         <flux:button variant="primary" wire:click="save" color="blue">Simpan Dan Submit</flux:button>
 
     </div>

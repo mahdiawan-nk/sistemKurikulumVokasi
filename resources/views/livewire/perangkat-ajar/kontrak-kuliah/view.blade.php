@@ -64,21 +64,27 @@
                                 <div class="flex gap-2">
                                     {{-- PERUMUSAN --}}
                                     @if ($approval->role_proses === 'perumusan' && $approval->status === 'pending' && session('active_role') == 'Dosen')
-                                        <flux:button size="sm" color="blue" variant="primary" wire:click="openDialog({{ $approval->id }})"
-                                            wire:loading.attr="disabled">
+                                        <flux:button size="sm" color="blue" variant="primary"
+                                            wire:click="openDialog({{ $approval->id }})" wire:loading.attr="disabled">
                                             Submit
                                         </flux:button>
                                     @endif
 
                                     {{-- PEMERIKSAAN --}}
-                                    @if ($approval->role_proses === 'pemeriksaan' && $approval->status === 'pending' && session('active_role') == 'Kaprodi' && $approvals->status === 'submitted')
+                                    @if (
+                                        $approval->role_proses === 'pemeriksaan' &&
+                                            $approval->status === 'pending' &&
+                                            session('active_role') == 'Kaprodi' &&
+                                            $approvals->status === 'submitted')
                                         <flux:button variant="primary" size="sm" color="green"
-                                            wire:click="openDialog({{ $approval->id }},false,'pemeriksaan')" wire:loading.attr="disabled">
+                                            wire:click="openDialog({{ $approval->id }},false,'pemeriksaan')"
+                                            wire:loading.attr="disabled">
                                             Approve
                                         </flux:button>
 
                                         <flux:button variant="primary" size="sm" color="red"
-                                            wire:click="openDialog({{ $approval->id }},true,'pemeriksaan')" wire:loading.attr="disabled">
+                                            wire:click="openDialog({{ $approval->id }},true,'pemeriksaan')"
+                                            wire:loading.attr="disabled">
                                             Reject
                                         </flux:button>
                                     @endif
@@ -203,7 +209,7 @@
                         'Tujuan Pembelajaran' => $tujuan_pembelajaran,
                         'Capaian Pembelajaran Matakuliah' => $mk_cpmk,
                         'Strategi Perkuliahan' => $strategi_perkuliahan,
-                        'Organisasi Materi' => null, // handled khusus
+                        'Organisasi Materi' => $materi_pembelajaran, // handled khusus
                         'Kriteria dan Standar Penilaian' => $kriteria_penilaian,
                         'Tata Tertib Perkuliahan' => $tata_tertib,
                     ];
@@ -257,9 +263,12 @@
                                         </table>
                                     </div>
                                 @else
-                                    <p class="italic text-neutral-400">
-                                        Organisasi materi belum tersedia
-                                    </p>
+                                    <div
+                                        class="prose max-w-none
+                                   prose-neutral dark:prose-invert
+                                   text-sm leading-relaxed">
+                                        {!! $content ?: '<span class="italic text-neutral-400">Tidak tersedia</span>' !!}
+                                    </div>
                                 @endif
 
                                 {{-- SECTION BIASA --}}

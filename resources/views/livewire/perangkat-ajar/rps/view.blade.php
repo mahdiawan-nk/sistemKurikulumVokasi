@@ -3,6 +3,9 @@
         $cpls = $matriksCplCpmk['cpl'];
         $cpmks = $matriksCplCpmk['cpmk'];
     @endphp
+    <div>
+        <flux:button wire:click="download">Cetak PDF</flux:button>
+    </div>
     <x-card title="Approvals">
         <div class="relative overflow-hidden rounded-xl border border-outline dark:border-outline-dark">
             <div class="overflow-x-auto">
@@ -246,7 +249,7 @@
                         class="shrink-0 items-self-end px-2 py-0.5 rounded-md text-xs font-semibold
                            bg-blue-100 text-blue-700
                            dark:bg-blue-900 dark:text-blue-200">
-                        Bobot : {{ $form['cpmk_bobot'][$cpmk->cpmk_id]['bobot'] }} %
+                        Bobot : {{ $form['cpmks'][$cpmk->cpmk_id]['bobot'] }} %
                     </span>
                 </li>
             @endforeach

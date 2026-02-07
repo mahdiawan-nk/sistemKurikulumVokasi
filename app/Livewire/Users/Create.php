@@ -13,18 +13,26 @@ class Create extends Component
 
     public function mount()
     {
-        $this->listRoles = UserRole::all();
+        $this->listRoles = UserRole::where('id', 1)->get();
     }
 
     public function store()
     {
         $validate = $this->validate([
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'role' => 'required|array',
             'role.*' => 'boolean',
-        ]);
+        ],
+        [
+            'name.required' => 'Name is required.',
+            'email.required' => 'Email is required.',
+            'email.unique' => 'Email already exists.',
+            'password.required' => 'Password is required.',
+            'role.required' => 'Please select at least one role.',
+        ]   
+        );
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,

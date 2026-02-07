@@ -1,39 +1,54 @@
-<table width="100%" style="border-collapse: collapse; font-size: 11px;" border="1" cellpadding="5">
-    <tr>
+<table width="100%" cellpadding="0" cellspacing="0"
+    style="
+        border-collapse: collapse;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 1.1;
+    ">
+
+    {{-- ROW 1 & 2 --}}
+    <tr style="height:18px;">
         {{-- LOGO --}}
-        <td rowspan="4" width="15%" align="center" valign="middle">
-            <img src="{{ asset('images/logo-polkam.png') }}" alt="Logo Politeknik Kampar"
-                style="width:75px; height:75px;">
+        <td rowspan="4" width="15%" align="center" valign="middle" style="border:1px solid #0000006e;">
+            <img src="{{ public_path('images/logo-polkam-2.png') }}" alt="Logo Politeknik Kampar"
+                style="height:55px; width:auto;" />
         </td>
 
         {{-- TITLE ATAS --}}
-        <td rowspan="2" width="55%" align="center" valign="middle">
-            <strong style="font-size:18px;">POLITEKNIK KAMPAR</strong>
+        <td rowspan="2" width="55%" align="center" valign="middle" style="border:1px solid #0000006e;">
+            <div style="font-size:18px; font-weight:bold;">
+                POLITEKNIK KAMPAR
+            </div>
         </td>
 
         {{-- META --}}
-        <td width="15%">Nomor</td>
-        <td width="15%">: Fm-Adm-011</td>
+        <td width="10%" style="border-top:1px solid #0000006e; padding:2px;">Nomor</td>
+        <td width="" style="border-top:1px solid #0000006e;border-right:1px solid #0000006e; padding:2px;">: Fm-Adm-011</td>
     </tr>
 
-    <tr>
-        <td>Tanggal</td>
-        <td>: {{ now()->format('d F Y') }}</td>
+    <tr style="height:20px;">
+        <td style="border-top:1px solid #0000006e; padding:2px;">Tanggal</td>
+        <td style="border-top:1px solid #0000006e;border-right:1px solid #0000006e; padding:2px;">
+            : {{ now()->format('d F Y') }}
+        </td>
     </tr>
 
-    <tr>
+    {{-- ROW 3 & 4 --}}
+    <tr style="height:24px;">
         {{-- TITLE BAWAH --}}
-        <td rowspan="2" align="center" valign="middle">
-            <strong style="font-size:18px;">FORM MUTU</strong>
+        <td rowspan="2" align="center" valign="middle" style="border:1px solid #0000006e;">
+            <div style="font-size:18px; font-weight:bold;">
+                FORM MUTU
+            </div>
         </td>
 
-        <td>Revisi</td>
-        <td>: 0</td>
+        <td style="border-top:1px solid #0000006e; padding:2px;">Revisi</td>
+        <td style="border-top:1px solid #0000006e;border-right:1px solid #0000006e; padding:2px;">: 0</td>
     </tr>
 
-    <tr>
-        <td>Halaman</td>
-        <td>
+    <tr style="height:24px;">
+        <td style="border-top:1px solid #0000006e; border-bottom:1px solid #0000006e; padding:2px;">Halaman</td>
+        <td style="border-top:1px solid #0000006e;border-bottom:1px solid #0000006e;border-right:1px solid #0000006e; padding:2px;">
             :
             <script type="text/php">
                 if (isset($pdf)) {

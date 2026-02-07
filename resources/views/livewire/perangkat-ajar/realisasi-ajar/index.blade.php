@@ -85,6 +85,11 @@
                             <flux:button variant="primary" icon="eye"
                                 :href="route('perangkat-ajar.realisasi-ajar.view', ['id' => $row->id])" wire:navigate
                                 size="sm" />
+                            @if ($row->status == 'approved')
+                                <flux:button variant="primary" icon="document" target="_blank"
+                                    :href="route('pdf.preview.realisasi-ajar', ['id' => $row->id])" size="sm" />
+                            @endif
+
                             {{-- @endcan --}}
                         </x-ui.table.action>
                     </x-ui.table.row>

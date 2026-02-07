@@ -12,6 +12,7 @@
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
         "brunocfalcao/blade-feather-icons": "*",
+        "iio/libmergepdf": "^4.0",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
@@ -20,6 +21,7 @@
         "luvi-ui/laravel-luvi": "^0.6.0",
         "maatwebsite/excel": "^3.1",
         "masmerise/livewire-toaster": "^2.8",
+        "spatie/laravel-pdf": "^1.9",
         "wireui/wireui": "^2.5"
     },
     "require-dev": {

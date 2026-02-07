@@ -79,6 +79,10 @@
                             @endcan
                             <flux:button variant="primary" color="zinc" size="sm" icon="eye"
                                 href="{{ route('perangkat-ajar.rps.view', ['id' => $row->id]) }}"></flux:button>
+                            @if($row->status == 'published')
+                            <flux:button variant="primary" icon="document" target="_blank"
+                                :href="route('pdf.preview.rps', ['id' => $row->id])" size="sm" />
+                            @endif
                         </x-ui.table.action>
                     </x-ui.table.row>
                 @empty

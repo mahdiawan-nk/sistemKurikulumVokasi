@@ -68,14 +68,14 @@
                         <td class="p-4">{{ $row->status }}</td>
                         <td class="p-4">{{ $row->created_at }}</td>
                         <x-ui.table.action :row="$row">
-                            @can('update', [App\Models\KontrakKuliah::class,$row, ['Dosen']])
+                            @can('update', [App\Models\KontrakKuliah::class, $row, ['Dosen']])
                                 @if ($row->status == 'draft' || $row->status == 'rejected')
                                     <flux:button variant="primary" icon="pencil"
                                         href="{{ route('perangkat-ajar.kontrak-kuliah.update', ['id' => $row->id]) }}"
                                         size="sm" wire:navigate />
                                 @endif
                             @endcan
-                            @can('delete', [App\Models\KontrakKuliah::class,$row, ['Dosen']])
+                            @can('delete', [App\Models\KontrakKuliah::class, $row, ['Dosen']])
                                 @if ($row->status == 'draft')
                                     <flux:button variant="danger" icon="trash" label="{{ $row->status }}"
                                         wire:click="openDelete({{ $row->id }})" size="sm" />
@@ -86,6 +86,10 @@
                                     :href="route('perangkat-ajar.kontrak-kuliah.view', ['id' => $row->id])"
                                     size="sm" />
                             @endcan
+                            @if ($row->status == 'published')
+                                <flux:button variant="primary" icon="document" target="_blank"
+                                    :href="route('pdf.preview.kontrak-kuliah', ['id' => $row->id])" size="sm" />
+                            @endif
                         </x-ui.table.action>
                     </x-ui.table.row>
                 @empty

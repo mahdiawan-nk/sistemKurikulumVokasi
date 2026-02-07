@@ -37,6 +37,10 @@ class Index extends BaseTable
             'relation' => 'programStudis',
             'column' => 'program_studis.id',
         ],
+        'status' => [
+            'type' => 'column',
+            'column' => 'status',
+        ],
     ];
 
     /**
@@ -49,7 +53,30 @@ class Index extends BaseTable
      */
     public array $filter = [
         'prodi' => null,
+        'status' => null,
     ];
+
+    protected function setFilterProdi(): void
+    {
+        if (session('active_role') == 'Kaprodi') {
+
+            $programStudi = auth()->user()
+                    ?->dosens()
+                    ?->with('programStudis')
+                    ?->first()
+                    ?->programStudis()
+                    ?->first();
+
+            $this->filter['prodi'] = $programStudi?->id;
+            $this->activeProdi = $programStudi?->id;
+            $this->filter['status'] = ['submitted', 'published', 'rejected'];
+            return;
+        }
+        if (session('active_role') == 'Akademik') {
+            $this->filter['status'] = ['published'];
+        }
+
+    }
 
     public function getProdiOptionsProperty()
     {

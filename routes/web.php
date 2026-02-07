@@ -89,7 +89,9 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('realisasi-ajar/view/{id?}', RealisasiAjarView::class)->name('realisasi-ajar.view');
         });
 
-    Route::get('view-pdf', [PdfController::class, 'preview'])->name('pdf.preview');
+    Route::get('pdf/kontrak-kuliah/{id}',  [PdfController::class, 'previewKontrakKuliah'])->name('pdf.preview.kontrak-kuliah');
+    Route::get('pdf/realisasi-ajar/{id}',  [PdfController::class, 'previewRealisasiAjar'])->name('pdf.preview.realisasi-ajar');
+    Route::get('pdf/rps/{id}',  [PdfController::class, 'previewRps'])->name('pdf.preview.rps');
 
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');

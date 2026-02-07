@@ -10,17 +10,17 @@
         }
 
         .info-table td {
-            padding: 4px 6px;
+            padding: 2px 6px;
             vertical-align: top;
         }
 
         .info-label {
-            width: 25%;
+            width: 20%;
             font-weight: bold;
         }
 
         .info-separator {
-            width: 2%;
+            width: 1%;
             text-align: center;
         }
 
@@ -29,8 +29,9 @@
         }
 
         .section {
+            width: 95%;
             margin-top: 12px;
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.6;
         }
 
@@ -43,7 +44,7 @@
         .section-content {
             text-align: justify;
             margin-bottom: 8px;
-            padding-left:12px
+            padding-left: 12px
         }
 
         .section-list {
@@ -60,11 +61,10 @@
 @section('title', 'Laporan CPMK')
 
 @section('header')
-
+    @include('pdf.partials.header')
 @endsection
 
 @section('content')
-    @include('pdf.partials.header')
     <h1 style="text-align: center;font-size:14px;margin-top:5%;text-transform:uppercase">Kontrak Perkuliahan</h1>
     <div style="padding:25px">
         <table class="info-table">
@@ -108,10 +108,11 @@
         <div class="section">
             <div class="section-title">1. Deskripsi Mata Kuliah</div>
             <div class="section-content">
-                Mata kuliah ini mempelajari konsep-konsep dasar pada <i>Object Oriented Programming</i> (OOP),
-                seperti <i>class</i>, <i>object</i>, <i>encapsulation</i>, <i>inheritance</i>, <i>polymorphism</i>,
-                <i>interface</i>, dan <i>abstract class</i>. Secara spesifik, konsep-konsep tersebut akan
-                dipelajari dengan bantuan bahasa pemrograman PHP.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+                ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit
+                anim id est laborum.
             </div>
         </div>
 
