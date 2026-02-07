@@ -92,7 +92,7 @@ class CradStatistik extends Component
             ->count();
         $details = [];
         foreach ($status as $s) {
-            $details[$s] = Kurikulum::where('status', $s)->count();
+            $details[$s] = Kurikulum::where('status', $s)->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))->count();
         }
         $this->statsKurikulum = [
             'show' => in_array(session('active_role'), ['Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
@@ -105,19 +105,20 @@ class CradStatistik extends Component
     protected function getTotalPerangkatAjar()
     {
         $getTotalKontrak = KontrakKuliah::query()
+            ->where('status', 'published')
             ->when($this->prodiId, fn($q) => $q->whereHas('programStudis', fn($q) => $q->where('program_studis.id', $this->prodiId)))
             ->when($this->dosenId, fn($q) => $q->where('dosen_id', $this->dosenId))
             ->count();
-        $getTotalRps = Rps::count();
-        $getTotalRs = RealisasiPengajaran::count();
+        $getTotalRps = Rps::where('status', 'published')->when($this->prodiId, fn($q) => $q->whereHas('programStudi', fn($q) => $q->where('program_studis.id', $this->prodiId)))->when($this->dosenId, fn($q) => $q->where('dosen_id', $this->dosenId))->count();
+        $getTotalRs = RealisasiPengajaran::where('status', 'published')->when($this->prodiId, fn($q) => $q->whereHas('programStudi', fn($q) => $q->where('program_studis.id', $this->prodiId)))->when($this->dosenId, fn($q) => $q->where('dosen_id', $this->dosenId))->count();
         $this->statsPerangkatAjar = [
             'show' => in_array(session('active_role'), ['Dosen', 'Kaprodi', 'Akademik', 'BPM', 'Direktur', 'WADIR 1']),
             'title' => 'Jumlah Perangkat Ajar',
             'value' => $getTotalKontrak + $getTotalRps + $getTotalRs,
             'details' => [
-                'Kontrak Kuliah' => $getTotalKontrak,
-                'RPS' => $getTotalRps,
-                'Realisasi Pengajaran' => $getTotalRs
+                'Kontrak Kuliah (Published)' => $getTotalKontrak,
+                'Rencana Pembelajaran Semester (Published)' => $getTotalRps,
+                'Realisasi Pengajaran (Approved)' => $getTotalRs
             ]
         ];
     }
