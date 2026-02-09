@@ -27,7 +27,7 @@ class Footer extends Component
         ]
     ];
 
-    public $lisJenisReferensi = ['buku', 'modul', 'diktat'];
+    public $lisJenisReferensi = ['buku', 'diktat'];
     public $referensi = [];
 
     public ?int $selectedId = null;
