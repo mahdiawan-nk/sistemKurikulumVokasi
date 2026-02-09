@@ -55,7 +55,7 @@ class Create extends Component
     protected function persist()
     {
         $dataMaster = $this->payload['header'];
-        $dataMaster['status'] = $this->isDraft ? 'draft' : 'submitted';
+        $dataMaster['status'] = $this->isDraft === true ? 'draft' : 'submitted';
         DB::transaction(function () use ($dataMaster) {
             $ids = $this->saveRealisasiPengajaran($dataMaster);
             $this->savePertemuans($ids->id, $this->payload['pertemuan']);
