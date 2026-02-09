@@ -61,7 +61,7 @@ class Update extends Component
     protected function persist()
     {
         $dataMaster = $this->payload['header'];
-        $dataMaster['status'] = $this->isDraft ? 'draft' : 'submitted';
+        $dataMaster['status'] = $this->isDraft === true ? 'draft' : 'submitted';
         DB::transaction(function () use ($dataMaster) {
             $realisasi = RealisasiPengajaran::find($this->realisasiPengajaranId);
             $realisasi->update($dataMaster);
