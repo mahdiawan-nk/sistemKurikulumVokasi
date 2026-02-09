@@ -17,6 +17,7 @@ class RealisasiPengajaran extends Model
         'jumlah_sks',
         'tujuan_instruksional_umum',
         'kelas',
+        'status'
     ];
 
     protected $casts = [
