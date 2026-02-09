@@ -41,6 +41,10 @@ class Index extends BaseTable
             'type' => 'column',
             'column' => 'status',
         ],
+        'dosen_id'=> [
+            'type' => 'column',
+            'column' => 'dosen_id',
+        ]
     ];
 
     /**
@@ -54,6 +58,7 @@ class Index extends BaseTable
     public array $filter = [
         'prodi' => null,
         'status' => null,
+        'dosen_id' => null
     ];
 
     protected function setFilterProdi(): void
@@ -74,6 +79,12 @@ class Index extends BaseTable
         }
         if (session('active_role') == 'Akademik') {
             $this->filter['status'] = ['published'];
+        }
+        if ( in_array(session('active_role'), ['WADIR 1']) ) {
+            $this->filter['status'] = ['submitted','published','rejected'];
+        }
+        if (session('active_role') == 'Dosen') {
+            $this->filter['dosen_id'] = auth()->user()->dosenId();
         }
 
     }

@@ -25,7 +25,12 @@ class Index extends BaseTable
         'status' => [
             'type' => 'column',
             'column' => 'status'
-        ]
+        ],
+        'dosen' => [
+            'type' => 'relation',
+            'relation' => 'dosen',
+            'column' => 'dosen.name'
+        ],
     ];
 
     protected array $searchable = [
@@ -45,6 +50,7 @@ class Index extends BaseTable
     public array $filter = [
         'prodi' => null,
         'status' => null,
+        'dosen' => null
     ];
 
     public function getProdiOptionsProperty()
@@ -54,22 +60,22 @@ class Index extends BaseTable
             ->get(['id', 'name', 'jenjang']);
     }
 
-    protected function beforeSetFilterProdi(): void
-    {
-        if (session('active_role') == 'Dosen') {
+    // protected function beforeSetFilterProdi(): void
+    // {
+    //     if (session('active_role') == 'Dosen') {
 
-            $programStudi = auth()->user()
-                    ?->dosens()
-                    ?->with('programStudis')
-                    ?->first()
-                    ?->programStudis()
-                    ?->first();
+    //         $programStudi = auth()->user()
+    //                 ?->dosens()
+    //                 ?->with('programStudis')
+    //                 ?->first()
+    //                 ?->programStudis()
+    //                 ?->first();
 
-            $this->filter['prodi'] = $programStudi?->id;
+    //         $this->filter['prodi'] = $programStudi?->id;
 
-            return;
-        }
-    }
+    //         return;
+    //     }
+    // }
 
     protected function setFilterProdi(): void
     {
@@ -90,6 +96,12 @@ class Index extends BaseTable
         }
         if (session('active_role') == 'Akademik') {
             $this->filter['status'] = ['published'];
+        }
+        if (in_array(session('active_role'), ['WADIR 1','Direktur','BPM'])) {
+            $this->filter['status'] = ['submitted', 'published', 'rejected', 'approved'];
+        }
+        if (session('active_role') == 'Dosen') {
+            $this->filter['dosen_id'] = auth()->user()->dosenId();
         }
 
     }

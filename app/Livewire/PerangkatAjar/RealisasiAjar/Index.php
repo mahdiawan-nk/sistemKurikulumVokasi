@@ -76,22 +76,22 @@ class Index extends BaseTable
             ->orderBy('name')
             ->get(['id', 'name', 'jenjang']);
     }
-    protected function beforeSetFilterProdi(): void
-    {
-        if (session('active_role') == 'Dosen') {
+    // protected function beforeSetFilterProdi(): void
+    // {
+    //     if (session('active_role') == 'Dosen') {
 
-            $programStudi = auth()->user()
-                    ?->dosens()
-                    ?->with('programStudis')
-                    ?->first()
-                    ?->programStudis()
-                    ?->first();
+    //         $programStudi = auth()->user()
+    //                 ?->dosens()
+    //                 ?->with('programStudis')
+    //                 ?->first()
+    //                 ?->programStudis()
+    //                 ?->first();
 
-            $this->filter['prodi'] = $programStudi?->id;
+    //         $this->filter['prodi'] = $programStudi?->id;
 
-            return;
-        }
-    }
+    //         return;
+    //     }
+    // }
 
     protected function setFilterProdi(): void
     {
@@ -106,11 +106,17 @@ class Index extends BaseTable
 
             $this->filter['prodi'] = $programStudi?->id;
             $this->activeProdi = $programStudi?->id;
-            $this->filter['status'] = ['submitted','approved','rejected'];
+            $this->filter['status'] = ['submitted', 'approved', 'rejected'];
             return;
         }
         if (session('active_role') == 'Akademik') {
             $this->filter['status'] = ['approved'];
+        }
+        if (in_array(session('active_role'), ['WADIR 1','BPM','Direktur'])) {
+            $this->filter['status'] = ['approved'];
+        }
+        if (session('active_role') == 'Dosen') {
+            $this->filter['dosen_id'] = auth()->user()->dosenId();
         }
 
     }
