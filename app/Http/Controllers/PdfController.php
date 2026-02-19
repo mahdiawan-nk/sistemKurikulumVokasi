@@ -13,6 +13,8 @@ use iio\libmergepdf\Merger;
 use App\Models\Rps;
 use App\Models\PivotCplCpmkMk;
 use App\Models\CapaianPembelajaranMatakuliah;
+use App\Services\KurikulumTreeBuilder;
+use Illuminate\Support\Facades\Cache;
 class PdfController extends Controller
 {
     public function previewKontrakKuliah(int $id)
@@ -54,6 +56,29 @@ class PdfController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
 
+    public function previewKurikulum(int $id)
+    {
+        $kurikulum = Kurikulum::with(['programStudis', 'wadirApproval', 'creator'])->findOrFail($id);
+
+        $tree = Cache::remember(
+            "kurikulum_tree_{$id}",
+            now()->addHours(6), // atau addDays(1)
+            function () use ($kurikulum) {
+                return (new KurikulumTreeBuilder($kurikulum))->build();
+            }
+        );
+
+        return Pdf::loadView('pdf.kurikulum', [
+            'kurikulum' => $kurikulum,
+            'tree' => $tree,
+        ])
+            ->setPaper('a4', 'portrait')
+            ->stream('kurikulum.pdf');
+    }
+    protected function remapKurikulum($data)
+    {
+        dd($data);
+    }
     protected function getRpsData($id)
     {
         $data = Rps::with(['matakuliah', 'referensis', 'pertemuans', 'dosen', 'programStudi', 'rpsApprovals', 'penilaians'])->findOrFail($id);

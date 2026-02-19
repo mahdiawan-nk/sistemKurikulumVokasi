@@ -32,6 +32,7 @@
         </flux:dropdown>
         <span> Matriks View : <flux:badge color="blue">{{ $matrixMode ? $matrixMode : 'Semua' }}</flux:badge> </span>
         <div>
+            <flux:button variant="primary" color="zinc" href="{{ route('pdf.preview.kurikulum', ['id' => $kurikulum->id]) }}" target="_blank">Pdf</flux:button>
             <flux:button variant="primary" color="blue" @click="$dispatch('expandAll')">Expand All</flux:button>
             <flux:button variant="primary" @click="$dispatch('collapseAll')">Collapse All</flux:button>
         </div>
