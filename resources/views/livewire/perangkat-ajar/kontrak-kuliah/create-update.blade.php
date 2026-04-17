@@ -7,7 +7,7 @@
                     <flux:select wire:model.change="matakuliahId">
                         <flux:select.option value="">Pilih Matakuliah</flux:select.option>
                         @foreach ($listMK as $mk)
-                            <flux:select.option value="{{ $mk['id'] }}">{{ $mk['label'] }}</flux:select.option>
+                            <flux:select.option value="{{ $mk['id'] }}">{{ $mk['label'] }} - {{ $mk['description'] }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:error name="matakuliahId" />

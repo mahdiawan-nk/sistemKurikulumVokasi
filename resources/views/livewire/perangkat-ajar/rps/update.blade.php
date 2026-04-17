@@ -969,11 +969,25 @@
                         }
                     @endphp
                     {{-- FOOTER TOTAL --}}
+                    @php
+                        $grandTotal = collect($penilaian)->sum(fn($i) => (float) $i['persentase']);
+                    @endphp
+
+                    @if ($grandTotal > 100)
+                        <tr>
+                            <td colspan="{{ 2 + count($matriksCplCpmk['cpmk']) }}" class="p-0 border-0">
+                                <div class="m-2 px-3 py-2 rounded-lg bg-red-100 text-red-700 text-sm font-semibold">
+                                    ⚠️ Total persentase melebihi 100% ({{ $grandTotal }}%).
+                                    Silakan sesuaikan bobot penilaian.
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                     <tfoot class="bg-gray-50 dark:bg-gray-800 font-semibold">
                         <tr>
                             <td class="p-2 border">Total</td>
                             <td class="p-2 border text-center">
-                                {{ collect($penilaian)->sum(fn($i) => (float) $i['persentase']) }} %
+                                {{ collect($penilaian)->sum(fn($i) => (float) $i['persentase']) }}%
                             </td>
                             @foreach ($matriksCplCpmk['cpmk'] as $cpmkId => $cpmk)
                                 <td class="p-2 border text-center">

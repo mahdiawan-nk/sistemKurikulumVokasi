@@ -89,7 +89,7 @@ class CreateUpdate extends Component
                 return [
                     'id' => $mk->id,
                     'label' => $mk->code,
-                    'description' => 'MK :' . $mk->name . ', Semester :' . $mk->semester
+                    'description' => 'MK :' . $mk->name
                 ];
             });
 
